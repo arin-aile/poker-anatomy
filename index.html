@@ -1,0 +1,1837 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Poker Anatomy</title>
+<style>
+:root{
+  --bg:#f3f0e9;
+  --paper:#fffdf8;
+  --ink:#121110;
+  --muted:#817c73;
+  --line:#d7d1c6;
+  --soft:#e9e4da;
+  --red:#c72f33;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  width:100%;
+  max-width:100%;
+  overflow-x:hidden;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:Inter,Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+body{min-height:100svh}
+input[type=radio]{position:fixed;left:-9999px;opacity:0}
+
+.app{
+  min-height:100svh;
+  display:grid;
+  grid-template-columns:270px minmax(0,1fr);
+}
+.side{
+  position:sticky;top:0;height:100vh;
+  padding:26px 18px;
+  border-right:1px solid var(--line);
+  background:var(--bg);
+}
+.brand{
+  margin:0 8px 18px;
+  font-size:12px;
+  letter-spacing:.18em;
+  white-space:nowrap;
+}
+.brand b{font-weight:800}
+
+.mode-switch{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin-bottom:16px;
+}
+.mode-switch label{
+  display:flex;align-items:center;justify-content:center;
+  min-height:38px;
+  padding:8px 10px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  text-align:center;
+  background:transparent;
+}
+.subnav{display:none;gap:5px}
+.subnav label{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 11px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:13px;
+  line-height:1.2;
+}
+.subnav label:hover{background:var(--soft)}
+.num{
+  flex:0 0 24px;
+  color:#9b958b;
+  font-size:11px;
+  font-variant-numeric:tabular-nums;
+}
+
+.main{
+  min-width:0;
+  padding:36px clamp(22px,5vw,70px);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+.panel{
+  display:none;
+  width:min(980px,100%);
+  min-width:0;
+  min-height:690px;
+  flex-direction:column;
+  justify-content:center;
+}
+.head{margin-bottom:24px}
+.eyebrow{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:12px;
+  color:var(--muted);
+  font-size:10px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--red);flex:0 0 auto}
+h1{
+  margin:0 0 10px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(46px,6.5vw,84px);
+  line-height:.96;
+  font-weight:500;
+  letter-spacing:-.035em;
+}
+.kr{
+  display:inline-block;
+  margin-left:10px;
+  font-family:Inter,Pretendard,-apple-system,sans-serif;
+  font-size:.22em;
+  font-weight:500;
+  letter-spacing:0;
+  color:var(--muted);
+  vertical-align:middle;
+}
+.desc{
+  margin:0;
+  color:var(--muted);
+  font-size:15px;
+  line-height:1.55;
+}
+
+.motion-stage{
+  width:100%;
+  overflow:hidden;
+  padding:14px 2px 6px;
+}
+.cards{
+  width:min(720px,100%);
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:clamp(6px,1.3vw,14px);
+  align-items:center;
+}
+.card{
+  --i:0;
+  position:relative;
+  width:100%;
+  min-width:0;
+  aspect-ratio:2.5/3.5;
+  border:1px solid #cbc4b9;
+  border-radius:clamp(9px,1.5vw,15px);
+  background:var(--paper);
+  box-shadow:0 8px 20px rgba(0,0,0,.045);
+  opacity:0;
+  transform-origin:center;
+  animation:deal .46s cubic-bezier(.2,.78,.2,1) calc(.08s + var(--i)*.11s) forwards;
+}
+.card:nth-child(1){--i:0}
+.card:nth-child(2){--i:1}
+.card:nth-child(3){--i:2}
+.card:nth-child(4){--i:3}
+.card:nth-child(5){--i:4}
+@keyframes deal{
+  from{opacity:0;transform:translate3d(-24px,12px,0) rotate(-4deg) scale(.96)}
+  to{opacity:1;transform:translate3d(0,0,0) rotate(0) scale(1)}
+}
+.corner{
+  position:absolute;
+  top:8%;
+  left:10%;
+  font:clamp(17px,3vw,28px)/.9 Georgia,"Times New Roman",serif;
+}
+.corner small{
+  display:block;
+  margin-top:5px;
+  font-size:.68em;
+  text-align:center;
+}
+.suit{
+  position:absolute;inset:0;
+  display:grid;place-items:center;
+  font:clamp(34px,6vw,62px) Georgia,"Times New Roman",serif;
+  transform-origin:center;
+}
+.red{color:var(--red)}
+.black{color:#151513}
+
+.logic{
+  width:min(720px,100%);
+  min-height:36px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+  margin-top:20px;
+  opacity:0;
+  transform:translateY(8px);
+  animation:logicIn .45s ease 1.72s forwards;
+}
+.logic span{
+  display:inline-flex;
+  align-items:center;
+  min-height:28px;
+  padding:6px 10px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:rgba(255,255,255,.28);
+  color:#68635c;
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.logic .accent{border-color:#bfa9a7;color:#a82529}
+@keyframes logicIn{to{opacity:1;transform:none}}
+
+.info{
+  width:min(720px,100%);
+  margin-top:28px;
+  padding-top:16px;
+  border-top:1px solid var(--line);
+}
+.info .label{
+  margin-bottom:7px;
+  color:#9a958d;
+  font-size:10px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+}
+.info .rule{font-size:16px;line-height:1.58}
+.note{margin-top:10px;color:#a09a91;font-size:11px;line-height:1.45}
+.nextrow{
+  width:min(720px,100%);
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:20px;
+}
+.nextrow label{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:104px;
+  min-height:42px;
+  padding:10px 16px;
+  border-radius:999px;
+  background:var(--ink);
+  color:#fff;
+  font-size:12px;
+  cursor:pointer;
+}
+.nextrow .ghost{
+  background:transparent;
+  color:var(--ink);
+  border:1px solid var(--ink);
+}
+
+/* HAND LOGIC ANIMATIONS */
+.royal .card{
+  animation:
+    deal .46s cubic-bezier(.2,.78,.2,1) calc(.08s + var(--i)*.11s) forwards,
+    royalLock .55s ease calc(1.05s + var(--i)*.035s) forwards;
+}
+.royal .suit{animation:suitPulse .58s ease 1.34s both}
+@keyframes royalLock{
+  0%{opacity:1;transform:none}
+  55%{opacity:1;transform:translateY(-9px) scale(1.025)}
+  100%{opacity:1;transform:translateY(-5px)}
+}
+@keyframes suitPulse{
+  0%{transform:scale(1)}
+  45%{transform:scale(1.2)}
+  100%{transform:scale(1)}
+}
+.straightflush .card{
+  animation:
+    deal .43s cubic-bezier(.2,.78,.2,1) calc(.06s + var(--i)*.10s) forwards,
+    sfRise .44s ease calc(1.02s + var(--i)*.07s) forwards;
+}
+.straightflush .suit{animation:suitPulse .55s ease 1.48s both}
+@keyframes sfRise{
+  0%{opacity:1;transform:none}
+  60%{opacity:1;transform:translateY(-10px)}
+  100%{opacity:1;transform:translateY(-6px)}
+}
+.quads .card:nth-child(-n+4){
+  animation:
+    deal .45s cubic-bezier(.2,.78,.2,1) calc(.07s + var(--i)*.10s) forwards,
+    matchUp .5s ease 1.16s forwards;
+}
+.quads .card:nth-child(5){
+  animation:
+    deal .45s cubic-bezier(.2,.78,.2,1) .47s forwards,
+    kickerOut .55s ease 1.2s forwards;
+}
+@keyframes matchUp{
+  0%{opacity:1;transform:none}
+  100%{opacity:1;transform:translateY(-10px);box-shadow:0 11px 25px rgba(0,0,0,.08)}
+}
+@keyframes kickerOut{
+  0%{opacity:1;transform:none}
+  100%{opacity:.28;transform:translateY(10px) scale(.94)}
+}
+.fullhouse .card:nth-child(-n+3){
+  animation:
+    deal .45s cubic-bezier(.2,.78,.2,1) calc(.07s + var(--i)*.10s) forwards,
+    tripleGroup .52s ease 1.15s forwards;
+}
+.fullhouse .card:nth-child(n+4){
+  animation:
+    deal .45s cubic-bezier(.2,.78,.2,1) calc(.07s + var(--i)*.10s) forwards,
+    pairGroup .52s ease 1.25s forwards;
+}
+@keyframes tripleGroup{
+  0%{opacity:1;transform:none}
+  100%{opacity:1;transform:translateY(-10px)}
+}
+@keyframes pairGroup{
+  0%{opacity:1;transform:none}
+  100%{opacity:1;transform:translateY(9px)}
+}
+.flush .card:nth-child(1){animation:flush1 .82s cubic-bezier(.2,.78,.2,1) .08s forwards}
+.flush .card:nth-child(2){animation:flush2 .82s cubic-bezier(.2,.78,.2,1) .18s forwards}
+.flush .card:nth-child(3){animation:flush3 .82s cubic-bezier(.2,.78,.2,1) .28s forwards}
+.flush .card:nth-child(4){animation:flush4 .82s cubic-bezier(.2,.78,.2,1) .38s forwards}
+.flush .card:nth-child(5){animation:flush5 .82s cubic-bezier(.2,.78,.2,1) .48s forwards}
+.flush .suit{animation:suitPulse .55s ease 1.42s both}
+@keyframes flush1{from{opacity:0;transform:translateY(22px) rotate(-3deg)}to{opacity:1;transform:none}}
+@keyframes flush2{from{opacity:0;transform:translateY(-18px) rotate(2deg)}to{opacity:1;transform:none}}
+@keyframes flush3{from{opacity:0;transform:translateY(30px) rotate(-2deg)}to{opacity:1;transform:none}}
+@keyframes flush4{from{opacity:0;transform:translateY(-24px) rotate(3deg)}to{opacity:1;transform:none}}
+@keyframes flush5{from{opacity:0;transform:translateY(18px) rotate(-2deg)}to{opacity:1;transform:none}}
+.straight .card{
+  animation:
+    deal .4s cubic-bezier(.2,.78,.2,1) calc(.04s + var(--i)*.12s) forwards,
+    countStep .42s ease calc(.86s + var(--i)*.12s) forwards;
+}
+@keyframes countStep{
+  0%{opacity:1;transform:none}
+  50%{opacity:1;transform:translateY(-11px) scale(1.025)}
+  100%{opacity:1;transform:none}
+}
+.trips .card:nth-child(-n+3){
+  animation:
+    deal .45s cubic-bezier(.2,.78,.2,1) calc(.07s + var(--i)*.10s) forwards,
+    matchUp .5s ease 1.12s forwards;
+}
+.trips .card:nth-child(n+4){
+  animation:
+    deal .45s cubic-bezier(.2,.78,.2,1) calc(.07s + var(--i)*.10s) forwards,
+    sideOut .5s ease 1.2s forwards;
+}
+@keyframes sideOut{
+  0%{opacity:1;transform:none}
+  100%{opacity:.32;transform:translateY(9px) scale(.95)}
+}
+.twopair .card:nth-child(1),
+.twopair .card:nth-child(2){
+  animation:
+    deal .45s cubic-bezier(.2,.78,.2,1) calc(.06s + var(--i)*.10s) forwards,
+    pairOne .48s ease 1.05s forwards;
+}
+.twopair .card:nth-child(3),
+.twopair .card:nth-child(4){
+  animation:
+    deal .45s cubic-bezier(.2,.78,.2,1) calc(.06s + var(--i)*.10s) forwards,
+    pairTwo .48s ease 1.28s forwards;
+}
+.twopair .card:nth-child(5){
+  animation:
+    deal .45s cubic-bezier(.2,.78,.2,1) .46s forwards,
+    kickerOut .5s ease 1.36s forwards;
+}
+@keyframes pairOne{from{opacity:1;transform:none}to{opacity:1;transform:translateY(-10px)}}
+@keyframes pairTwo{from{opacity:1;transform:none}to{opacity:1;transform:translateY(-5px)}}
+.onepair .card:nth-child(1){
+  animation:
+    deal .45s cubic-bezier(.2,.78,.2,1) .08s forwards,
+    pairLeft .52s ease 1.05s forwards;
+}
+.onepair .card:nth-child(2){
+  animation:
+    deal .45s cubic-bezier(.2,.78,.2,1) .18s forwards,
+    pairRight .52s ease 1.05s forwards;
+}
+.onepair .card:nth-child(n+3){
+  animation:
+    deal .45s cubic-bezier(.2,.78,.2,1) calc(.06s + var(--i)*.10s) forwards,
+    sideOut .5s ease 1.2s forwards;
+}
+@keyframes pairLeft{from{opacity:1;transform:none}to{opacity:1;transform:translate(4px,-9px)}}
+@keyframes pairRight{from{opacity:1;transform:none}to{opacity:1;transform:translate(-4px,-9px)}}
+.highcard .card{
+  animation:
+    deal .4s cubic-bezier(.2,.78,.2,1) calc(.05s + var(--i)*.09s) forwards,
+    scanCard .36s ease calc(.82s + var(--i)*.16s) forwards;
+}
+.highcard .card:nth-child(5){
+  animation:
+    deal .4s cubic-bezier(.2,.78,.2,1) .41s forwards,
+    highWins .52s ease 1.48s forwards;
+}
+@keyframes scanCard{
+  0%{opacity:1;transform:none}
+  50%{opacity:1;transform:translateY(-8px)}
+  100%{opacity:.42;transform:none}
+}
+@keyframes highWins{
+  0%{opacity:1;transform:none}
+  100%{opacity:1;transform:translateY(-12px) scale(1.035);box-shadow:0 12px 28px rgba(0,0,0,.1)}
+}
+
+/* DEALER STAGE */
+.dealer-stage{
+  width:min(760px,100%);
+  height:320px;
+  position:relative;
+  overflow:hidden;
+  border-radius:22px;
+  background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.06));
+  border:1px solid rgba(208,201,190,.9);
+}
+.caption{
+  position:absolute;
+  left:18px;top:16px;
+  z-index:10;
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:#9c968c;
+}
+.mcard{
+  position:absolute;
+  width:86px;height:122px;
+  border-radius:12px;
+  border:1px solid #cbc4b9;
+  background:var(--paper);
+  box-shadow:0 8px 18px rgba(0,0,0,.05);
+}
+.back{
+  background:
+   linear-gradient(135deg, rgba(199,47,51,.85), rgba(160,22,31,.88));
+  border-color:#b45f5f;
+}
+.back::before{
+  content:"";
+  position:absolute;inset:10px;
+  border:1px solid rgba(255,255,255,.48);
+  border-radius:8px;
+}
+.back::after{
+  content:"";
+  position:absolute;inset:24px;
+  border:1px solid rgba(255,255,255,.36);
+  border-radius:6px;
+}
+.face::before{
+  content:attr(data-rank);
+  position:absolute;
+  top:9px;left:11px;
+  font:20px/1 Georgia,serif;
+  color:var(--ink);
+  white-space:pre;
+}
+.face.red::before{color:var(--red)}
+.face .sym{
+  position:absolute;inset:0;
+  display:grid;place-items:center;
+  font:46px Georgia,serif;
+}
+.face.red .sym{color:var(--red)}
+.face.black .sym{color:#111}
+.slot{
+  position:absolute;
+  width:86px;height:122px;
+  border-radius:12px;
+  border:1px dashed rgba(138,132,123,.46);
+  background:rgba(255,255,255,.12);
+}
+.small-note{
+  position:absolute;
+  right:16px;bottom:14px;
+  font-size:10px;
+  letter-spacing:.08em;
+  color:#9c968c;
+  text-transform:uppercase;
+}
+
+/* q1 shuffle */
+.q1 .mcard{opacity:0}
+.q1 .c1,.q1 .c2,.q1 .c3,.q1 .c4{
+  left:16%; top:104px;
+  animation:shufLeft .88s cubic-bezier(.2,.8,.18,1) forwards;
+}
+.q1 .c5,.q1 .c6,.q1 .c7,.q1 .c8{
+  left:66%; top:104px;
+  animation:shufRight .88s cubic-bezier(.2,.8,.18,1) forwards;
+}
+.q1 .c1{animation-delay:.1s}.q1 .c2{animation-delay:.18s}.q1 .c3{animation-delay:.26s}.q1 .c4{animation-delay:.34s}
+.q1 .c5{animation-delay:.14s}.q1 .c6{animation-delay:.22s}.q1 .c7{animation-delay:.30s}.q1 .c8{animation-delay:.38s}
+@keyframes shufLeft{
+  0%{opacity:0;transform:translateX(-8px) rotate(-8deg)}
+  100%{opacity:1;transform:translateX(calc(240px + var(--spread,0px))) rotate(-2deg)}
+}
+@keyframes shufRight{
+  0%{opacity:0;transform:translateX(8px) rotate(8deg)}
+  100%{opacity:1;transform:translateX(calc(-220px + var(--spread,0px))) rotate(2deg)}
+}
+.q1 .c1{--spread:-20px}.q1 .c2{--spread:4px}.q1 .c3{--spread:30px}.q1 .c4{--spread:56px}
+.q1 .c5{--spread:-8px}.q1 .c6{--spread:18px}.q1 .c7{--spread:44px}.q1 .c8{--spread:68px}
+
+/* q2 square */
+.q2 .mcard{
+  left:50%; top:96px; opacity:0;
+  animation:squareIn .9s cubic-bezier(.2,.82,.18,1) forwards;
+}
+.q2 .m1{transform:translate(-130px,-24px) rotate(-11deg)}
+.q2 .m2{transform:translate(-82px,18px) rotate(-6deg)}
+.q2 .m3{transform:translate(-18px,-4px) rotate(7deg)}
+.q2 .m4{transform:translate(24px,12px) rotate(-5deg)}
+.q2 .m5{transform:translate(86px,-16px) rotate(10deg)}
+.q2 .m6{transform:translate(140px,22px) rotate(5deg)}
+.q2 .m1{animation-delay:.06s}.q2 .m2{animation-delay:.12s}.q2 .m3{animation-delay:.18s}.q2 .m4{animation-delay:.24s}.q2 .m5{animation-delay:.30s}.q2 .m6{animation-delay:.36s}
+@keyframes squareIn{
+  from{opacity:0}
+  to{opacity:1;transform:translate(-50%,-50%) rotate(0deg)}
+}
+
+/* q3 cut */
+.q3 .packet{
+  position:absolute;
+  left:50%; top:50%;
+  width:90px;height:128px;
+  transform:translate(-50%,-50%);
+}
+.q3 .packet .mcard{left:0;top:0}
+.q3 .packet .mcard:nth-child(1){transform:translate(0,0)}
+.q3 .packet .mcard:nth-child(2){transform:translate(0,3px)}
+.q3 .packet .mcard:nth-child(3){transform:translate(0,6px)}
+.q3 .packet .mcard:nth-child(4){transform:translate(0,9px)}
+.q3 .top-packet{animation:cutTop .95s cubic-bezier(.2,.8,.2,1) .18s forwards}
+.q3 .bot-packet{animation:cutBot .95s cubic-bezier(.2,.8,.2,1) .18s forwards}
+@keyframes cutTop{
+  0%{transform:translate(-50%,-50%)}
+  35%{transform:translate(-10%,-78%)}
+  100%{transform:translate(-84%,-50%)}
+}
+@keyframes cutBot{
+  0%{transform:translate(-50%,-50%)}
+  35%{transform:translate(-92%,-18%)}
+  100%{transform:translate(8%,-50%)}
+}
+
+/* q4 deal */
+.q4 .slot.s1{left:16%; top:168px}
+.q4 .slot.s2{left:39%; top:68px}
+.q4 .slot.s3{left:61%; top:168px}
+.q4 .slot.s4{left:84%; top:68px; transform:translateX(-100%)}
+.q4 .source{
+  position:absolute; left:42px; top:98px;
+  width:90px; height:128px;
+}
+.q4 .source .mcard{left:0;top:0}
+.q4 .source .mcard:nth-child(1){transform:translate(0,0)}
+.q4 .source .mcard:nth-child(2){transform:translate(0,3px)}
+.q4 .source .mcard:nth-child(3){transform:translate(0,6px)}
+.q4 .source .mcard:nth-child(4){transform:translate(0,9px)}
+.q4 .fly{opacity:0}
+.q4 .f1{left:42px;top:98px;animation:dealTo1 .9s ease .28s forwards}
+.q4 .f2{left:42px;top:98px;animation:dealTo2 .9s ease .58s forwards}
+.q4 .f3{left:42px;top:98px;animation:dealTo3 .9s ease .88s forwards}
+.q4 .f4{left:42px;top:98px;animation:dealTo4 .9s ease 1.18s forwards}
+@keyframes dealTo1{0%{opacity:0}10%{opacity:1}100%{opacity:1;transform:translate(90px,68px) rotate(-6deg)}}
+@keyframes dealTo2{0%{opacity:0}10%{opacity:1}100%{opacity:1;transform:translate(270px,-32px) rotate(5deg)}}
+@keyframes dealTo3{0%{opacity:0}10%{opacity:1}100%{opacity:1;transform:translate(440px,68px) rotate(-4deg)}}
+@keyframes dealTo4{0%{opacity:0}10%{opacity:1}100%{opacity:1;transform:translate(570px,-32px) rotate(4deg)}}
+
+/* q5 burn */
+.q5 .source{
+  position:absolute; left:120px; top:98px;
+  width:90px; height:128px;
+}
+.q5 .source .mcard{left:0;top:0}
+.q5 .source .mcard:nth-child(1){transform:translate(0,0)}
+.q5 .source .mcard:nth-child(2){transform:translate(0,3px)}
+.q5 .source .mcard:nth-child(3){transform:translate(0,6px)}
+.q5 .burnslot{left:72%;top:100px}
+.q5 .burn-card{
+  left:120px;top:98px;opacity:0;
+  animation:burnOut 1.05s cubic-bezier(.2,.78,.2,1) .45s forwards;
+}
+@keyframes burnOut{
+  0%{opacity:0}
+  10%{opacity:1}
+  100%{opacity:1;transform:translate(380px,8px) rotate(22deg)}
+}
+
+/* flip cards */
+.flipcard{
+  position:absolute;
+  width:86px;height:122px;
+  transform-style:preserve-3d;
+  transform:rotateY(0deg);
+  opacity:0;
+}
+.flipcard .sidef,.flipcard .sideb{
+  position:absolute;inset:0;
+  border-radius:12px;
+  backface-visibility:hidden;
+  border:1px solid #cbc4b9;
+  box-shadow:0 8px 18px rgba(0,0,0,.05);
+}
+.flipcard .sideb{
+  background:linear-gradient(135deg, rgba(199,47,51,.85), rgba(160,22,31,.88));
+  border-color:#b45f5f;
+}
+.flipcard .sideb::before{
+  content:"";
+  position:absolute;inset:10px;
+  border:1px solid rgba(255,255,255,.45);
+  border-radius:8px;
+}
+.flipcard .sidef{
+  background:var(--paper);
+  transform:rotateY(180deg);
+}
+.flipcard .sidef::before{
+  content:attr(data-rank);
+  position:absolute;top:9px;left:11px;
+  font:20px/1 Georgia,serif;
+  color:var(--ink);
+  white-space:pre;
+}
+.flipcard.red .sidef::before{color:var(--red)}
+.flipcard .sig{
+  position:absolute;inset:0;
+  display:grid;place-items:center;
+  font:46px Georgia,serif;
+}
+.flipcard.red .sig{color:var(--red)}
+.flipcard.black .sig{color:#111}
+@keyframes flipIn{
+  0%{opacity:0;transform:translateY(16px) rotateY(0deg)}
+  20%{opacity:1}
+  100%{opacity:1;transform:translateY(0) rotateY(180deg)}
+}
+@keyframes revealOne{
+  0%{opacity:0;transform:translateY(16px) rotateY(0deg)}
+  15%{opacity:1}
+  100%{opacity:1;transform:translateY(0) rotateY(180deg)}
+}
+.community .face-card{
+  position:absolute;
+  width:86px;height:122px;
+  border-radius:12px;
+  border:1px solid #cbc4b9;
+  background:var(--paper);
+  box-shadow:0 8px 18px rgba(0,0,0,.05);
+}
+.community .face-card::before{
+  content:attr(data-rank);
+  position:absolute;top:9px;left:11px;
+  font:20px/1 Georgia,serif;
+  white-space:pre;
+}
+.community .face-card.red::before{color:var(--red)}
+.community .face-card.black::before{color:#111}
+.community .face-card .sym{
+  position:absolute;inset:0;display:grid;place-items:center;
+  font:46px Georgia,serif;
+}
+.community .face-card.red .sym{color:var(--red)}
+.community .face-card.black .sym{color:#111}
+
+/* q6 flop */
+.q6 .flipcard{top:98px}
+.q6 .f1{left:26%; animation:flipIn .95s ease .34s forwards}
+.q6 .f2{left:calc(26% + 104px); animation:flipIn .95s ease .62s forwards}
+.q6 .f3{left:calc(26% + 208px); animation:flipIn .95s ease .90s forwards}
+.q6 .burnmark{left:calc(26% - 110px); top:110px; opacity:.42}
+
+/* q7 turn */
+.q7 .community .face-card:nth-child(1){left:23%; top:98px}
+.q7 .community .face-card:nth-child(2){left:calc(23% + 102px); top:98px}
+.q7 .community .face-card:nth-child(3){left:calc(23% + 204px); top:98px}
+.q7 .newturn{left:calc(23% + 306px); top:98px; animation:revealOne .95s ease .72s forwards}
+.q7 .burnmark{left:calc(23% - 106px); top:110px; opacity:.42}
+
+/* q8 river */
+.q8 .community .face-card:nth-child(1){left:16%; top:98px}
+.q8 .community .face-card:nth-child(2){left:calc(16% + 100px); top:98px}
+.q8 .community .face-card:nth-child(3){left:calc(16% + 200px); top:98px}
+.q8 .community .face-card:nth-child(4){left:calc(16% + 300px); top:98px}
+.q8 .newriver{left:calc(16% + 400px); top:98px; animation:revealOne .95s ease .72s forwards}
+.q8 .burnmark{left:calc(16% - 106px); top:110px; opacity:.42}
+
+/* active mode / subnav */
+#tab-hands:checked ~ .app .mode-switch label[for=tab-hands],
+#tab-dealing:checked ~ .app .mode-switch label[for=tab-dealing]{
+  background:var(--ink);
+  color:#fff;
+  border-color:var(--ink);
+}
+#tab-hands:checked ~ .app .nav-hands{display:grid}
+#tab-dealing:checked ~ .app .nav-deal{display:grid}
+
+/* active sub items */
+#h1:checked ~ .app label[for=h1],
+#h2:checked ~ .app label[for=h2],
+#h3:checked ~ .app label[for=h3],
+#h4:checked ~ .app label[for=h4],
+#h5:checked ~ .app label[for=h5],
+#h6:checked ~ .app label[for=h6],
+#h7:checked ~ .app label[for=h7],
+#h8:checked ~ .app label[for=h8],
+#h9:checked ~ .app label[for=h9],
+#h10:checked ~ .app label[for=h10],
+#d1:checked ~ .app label[for=d1],
+#d2:checked ~ .app label[for=d2],
+#d3:checked ~ .app label[for=d3],
+#d4:checked ~ .app label[for=d4],
+#d5:checked ~ .app label[for=d5],
+#d6:checked ~ .app label[for=d6],
+#d7:checked ~ .app label[for=d7],
+#d8:checked ~ .app label[for=d8]{
+  background:var(--soft);
+  color:#000;
+}
+
+/* show panels with both mode and item state */
+#tab-hands:checked ~ #h1:checked ~ .app .p1.hand,
+#tab-hands:checked ~ #h2:checked ~ .app .p2.hand,
+#tab-hands:checked ~ #h3:checked ~ .app .p3.hand,
+#tab-hands:checked ~ #h4:checked ~ .app .p4.hand,
+#tab-hands:checked ~ #h5:checked ~ .app .p5.hand,
+#tab-hands:checked ~ #h6:checked ~ .app .p6.hand,
+#tab-hands:checked ~ #h7:checked ~ .app .p7.hand,
+#tab-hands:checked ~ #h8:checked ~ .app .p8.hand,
+#tab-hands:checked ~ #h9:checked ~ .app .p9.hand,
+#tab-hands:checked ~ #h10:checked ~ .app .p10.hand{
+  display:flex;
+}
+#tab-dealing:checked ~ #d1:checked ~ .app .q1.deal,
+#tab-dealing:checked ~ #d2:checked ~ .app .q2.deal,
+#tab-dealing:checked ~ #d3:checked ~ .app .q3.deal,
+#tab-dealing:checked ~ #d4:checked ~ .app .q4.deal,
+#tab-dealing:checked ~ #d5:checked ~ .app .q5.deal,
+#tab-dealing:checked ~ #d6:checked ~ .app .q6.deal,
+#tab-dealing:checked ~ #d7:checked ~ .app .q7.deal,
+#tab-dealing:checked ~ #d8:checked ~ .app .q8.deal{
+  display:flex;
+}
+
+/* mobile */
+@media(max-width:760px){
+  .app{display:block;min-height:100svh}
+  .side{
+    position:relative;height:auto;
+    width:100%;
+    padding:18px 16px 14px;
+    border-right:0;border-bottom:1px solid var(--line);
+  }
+  .brand{margin:0 0 12px;font-size:11px;letter-spacing:.16em}
+  .mode-switch{margin-bottom:12px}
+  .mode-switch label{min-height:36px;font-size:10px}
+  .subnav{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:5px;
+  }
+  .subnav label{
+    width:100%;min-width:0;
+    padding:8px 8px;gap:5px;
+    border-radius:8px;font-size:10px;
+    overflow:hidden;
+  }
+  .num{flex:0 0 18px;font-size:9px}
+  .main{
+    display:block;width:100%;
+    padding:30px 16px max(34px,env(safe-area-inset-bottom));
+  }
+  .panel{
+    width:100%;
+    min-height:0;
+    justify-content:flex-start;
+  }
+  .head{margin-bottom:22px}
+  .eyebrow{font-size:9px;margin-bottom:9px}
+  h1{
+    font-size:clamp(39px,12vw,54px);
+    line-height:.95;
+    overflow-wrap:anywhere;
+  }
+  .kr{margin-left:5px}
+  .desc{font-size:13px}
+  .motion-stage{width:calc(100% + 4px);margin-left:-2px;padding:12px 2px 5px}
+  .cards{width:100%;max-width:none;gap:6px}
+  .card{width:100%;min-width:0;border-radius:9px}
+  .corner{top:8%;left:9%;font-size:clamp(15px,5.2vw,21px)}
+  .corner small{margin-top:3px}
+  .suit{font-size:clamp(29px,10vw,42px)}
+  .logic{
+    width:100%;min-height:31px;
+    gap:5px;margin-top:15px;
+  }
+  .logic span{min-height:25px;padding:5px 8px;font-size:8.5px}
+  .info{width:100%;margin-top:23px;padding-top:14px}
+  .info .rule{font-size:14px}
+  .note{font-size:10px}
+  .nextrow{width:100%;margin-top:18px}
+  .nextrow label{min-height:40px;min-width:96px;padding:9px 15px}
+
+  .dealer-stage{
+    width:100%;
+    height:260px;
+    border-radius:16px;
+  }
+  .mcard,.slot,.flipcard,.community .face-card{
+    width:60px;height:86px;border-radius:10px;
+  }
+  .back::before{inset:7px;border-radius:6px}
+  .back::after{inset:16px;border-radius:4px}
+  .face::before,.flipcard .sidef::before,.community .face-card::before{
+    top:7px;left:8px;font-size:15px;
+  }
+  .face .sym,.flipcard .sig,.community .face-card .sym{font-size:33px}
+  .caption{left:12px;top:11px;font-size:10px}
+  .small-note{right:12px;bottom:10px;font-size:9px}
+
+  /* mobile fine-tuning positions */
+  .q1 .c1,.q1 .c2,.q1 .c3,.q1 .c4{left:10%;top:92px}
+  .q1 .c5,.q1 .c6,.q1 .c7,.q1 .c8{left:62%;top:92px}
+  @keyframes shufLeft{
+    0%{opacity:0;transform:translateX(-8px) rotate(-8deg)}
+    100%{opacity:1;transform:translateX(calc(120px + var(--spread,0px))) rotate(-2deg)}
+  }
+  @keyframes shufRight{
+    0%{opacity:0;transform:translateX(8px) rotate(8deg)}
+    100%{opacity:1;transform:translateX(calc(-126px + var(--spread,0px))) rotate(2deg)}
+  }
+  .q2 .mcard{left:50%;top:94px}
+  .q2 .m1{transform:translate(-96px,-18px) rotate(-11deg)}
+  .q2 .m2{transform:translate(-58px,15px) rotate(-6deg)}
+  .q2 .m3{transform:translate(-10px,-4px) rotate(7deg)}
+  .q2 .m4{transform:translate(20px,10px) rotate(-5deg)}
+  .q2 .m5{transform:translate(58px,-15px) rotate(10deg)}
+  .q2 .m6{transform:translate(92px,18px) rotate(5deg)}
+
+  .q3 .packet{width:64px;height:92px}
+  .q4 .slot.s1{left:14%;top:150px}
+  .q4 .slot.s2{left:39%;top:74px}
+  .q4 .slot.s3{left:62%;top:150px}
+  .q4 .slot.s4{left:88%;top:74px;transform:translateX(-100%)}
+  .q4 .source{left:12px;top:92px;width:64px;height:92px}
+  @keyframes dealTo1{0%{opacity:0}10%{opacity:1}100%{opacity:1;transform:translate(42px,58px) rotate(-6deg)}}
+  @keyframes dealTo2{0%{opacity:0}10%{opacity:1}100%{opacity:1;transform:translate(120px,-18px) rotate(5deg)}}
+  @keyframes dealTo3{0%{opacity:0}10%{opacity:1}100%{opacity:1;transform:translate(202px,58px) rotate(-4deg)}}
+  @keyframes dealTo4{0%{opacity:0}10%{opacity:1}100%{opacity:1;transform:translate(272px,-18px) rotate(4deg)}}
+
+  .q5 .source{left:44px;top:92px;width:64px;height:92px}
+  .q5 .burnslot{left:72%;top:92px}
+  @keyframes burnOut{
+    0%{opacity:0}
+    10%{opacity:1}
+    100%{opacity:1;transform:translate(170px,5px) rotate(22deg)}
+  }
+
+  .q6 .flipcard{top:92px}
+  .q6 .f1{left:24%}
+  .q6 .f2{left:calc(24% + 70px)}
+  .q6 .f3{left:calc(24% + 140px)}
+  .q6 .burnmark{left:calc(24% - 74px);top:102px}
+
+  .q7 .community .face-card:nth-child(1){left:18%;top:92px}
+  .q7 .community .face-card:nth-child(2){left:calc(18% + 68px);top:92px}
+  .q7 .community .face-card:nth-child(3){left:calc(18% + 136px);top:92px}
+  .q7 .newturn{left:calc(18% + 204px);top:92px}
+  .q7 .burnmark{left:calc(18% - 74px);top:102px}
+
+  .q8 .community .face-card:nth-child(1){left:7%;top:92px}
+  .q8 .community .face-card:nth-child(2){left:calc(7% + 62px);top:92px}
+  .q8 .community .face-card:nth-child(3){left:calc(7% + 124px);top:92px}
+  .q8 .community .face-card:nth-child(4){left:calc(7% + 186px);top:92px}
+  .q8 .newriver{left:calc(7% + 248px);top:92px}
+  .q8 .burnmark{left:calc(7% - 74px);top:102px}
+}
+
+@media(max-width:360px){
+  .subnav label{font-size:9.2px}
+  .main{padding-left:12px;padding-right:12px}
+  .cards{gap:4px}
+  .corner{font-size:14px}
+  .suit{font-size:28px}
+  h1{font-size:38px}
+  .dealer-stage{height:246px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;animation-delay:0ms!important}
+}
+
+/* v4: equal-height groups and quiet supporting annotations */
+.cards{--gap:clamp(6px,1.3vw,14px);gap:var(--gap)}
+.fullhouse .card,.twopair .card:nth-child(-n+4){animation:deal .45s ease calc(.07s + var(--i)*.1s) forwards,groupClose .6s ease 1.15s forwards}
+.fullhouse .card:nth-child(1){--gx:var(--gap)}
+.fullhouse .card:nth-child(2){--gx:0px}
+.fullhouse .card:nth-child(3){--gx:calc(-1 * var(--gap))}
+.fullhouse .card:nth-child(4),.twopair .card:nth-child(odd){--gx:calc(var(--gap) / 2)}
+.fullhouse .card:nth-child(5),.twopair .card:nth-child(even){--gx:calc(var(--gap) / -2)}
+@keyframes groupClose{from{opacity:1;transform:none}to{opacity:1;transform:translateX(var(--gx))}}
+.onepair .card:nth-child(-n+2){animation:deal .45s ease calc(.08s + var(--i)*.1s) forwards}
+.logic{min-height:24px;gap:5px;margin-top:16px}
+.logic span{min-height:22px;padding:4px 8px;font-size:9px;color:#8b857b;border-color:#e0dbd2;background:transparent;letter-spacing:.04em}
+.logic .accent{color:#a57572;border-color:#ddcac6}
+.info .label{font-size:9px;color:#999389}
+.info .rule{font-size:12px;line-height:1.65;color:#898278}
+.rank-order{margin-top:16px;font-size:12px;line-height:1.9;color:#6e685e;overflow-wrap:anywhere}
+.rank-order small{font-size:11px;color:#91897e}
+.corner{text-align:center}
+/* A single proportional card system; no external assets or scripts. */
+.dealer-stage{--cw:clamp(40px,12vw,86px);perspective:900px;-webkit-perspective:900px}
+.mcard,.slot,.flipcard,.community .face-card{width:var(--cw);height:auto;aspect-ratio:5 / 7;border-radius:9px}
+.face::before,.flipcard .sidef::before,.community .face-card::before{content:none}
+.dealer-stage .corner{top:7%;left:8%;font-size:clamp(13px,3.6vw,23px);line-height:.9}
+.dealer-stage .corner small{font-size:.65em;margin-top:3px}
+.dealer-stage .sym,.dealer-stage .sig{inset:40% 8% 8% 22%;font-size:clamp(23px,6.5vw,43px);line-height:1}
+.flipcard{opacity:1;transform-style:preserve-3d;-webkit-transform-style:preserve-3d}
+.flipcard .sidef,.flipcard .sideb{backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:9px}
+.flipcard .sideb{transform:rotateY(0deg) translateZ(1px)}
+.flipcard .sidef{transform:rotateY(180deg) translateZ(1px)}
+@keyframes revealOne{0%,28%{opacity:1;transform:rotateY(0deg)}75%,100%{opacity:1;transform:rotateY(180deg)}}
+.q7 .newturn,.q8 .newriver{animation:revealOne 2.6s cubic-bezier(.4,0,.2,1) .2s both}
+/* Board positions use available width, keeping all five cards inside. */
+.q6.dealer-stage,.q7.dealer-stage,.q8.dealer-stage{--step:18%;--start:6%;--cw:min(15%,86px)}
+.q6 .flipcard,.q7 .community .face-card,.q8 .community .face-card,.q7 .newturn,.q8 .newriver{top:92px}
+.q6 .f1,.q7 .community .face-card:nth-child(1),.q8 .community .face-card:nth-child(1){left:var(--start)}
+.q6 .f2,.q7 .community .face-card:nth-child(2),.q8 .community .face-card:nth-child(2){left:calc(var(--start) + var(--step))}
+.q6 .f3,.q7 .community .face-card:nth-child(3),.q8 .community .face-card:nth-child(3){left:calc(var(--start) + var(--step) * 2)}
+.q7 .newturn,.q8 .community .face-card:nth-child(4){left:calc(var(--start) + var(--step) * 3)}
+.q8 .newriver{left:calc(var(--start) + var(--step) * 4)}
+.q6 .burnmark,.q7 .burnmark,.q8 .burnmark{left:6%;top:52px;width:25px;height:32px;transform:rotate(-8deg)}
+.q1 .mcard{left:50%;top:92px;--spread:0px}
+.q1 .c1,.q1 .c2,.q1 .c3,.q1 .c4{animation-name:shuffleLeftV4}
+.q1 .c5,.q1 .c6,.q1 .c7,.q1 .c8{animation-name:shuffleRightV4}
+.q1 .c1,.q1 .c5{--spread:-12px}.q1 .c2,.q1 .c6{--spread:-4px}.q1 .c3,.q1 .c7{--spread:4px}.q1 .c4,.q1 .c8{--spread:12px}
+@keyframes shuffleLeftV4{from{opacity:1;transform:translateX(-145%) rotate(-8deg)}to{opacity:1;transform:translateX(calc(-50% + var(--spread))) rotate(-2deg)}}
+@keyframes shuffleRightV4{from{opacity:1;transform:translateX(45%) rotate(8deg)}to{opacity:1;transform:translateX(calc(-50% + var(--spread))) rotate(2deg)}}
+.q4 .source{left:5%;top:90px}
+.q4 .fly{left:5%;top:90px;animation-name:dealSeatV4}
+.q4 .f1,.q4 .s1{--seat:23%;--top:155px}
+.q4 .f2,.q4 .s2{--seat:43%;--top:65px}
+.q4 .f3,.q4 .s3{--seat:63%;--top:155px}
+.q4 .f4,.q4 .s4{--seat:80%;--top:65px}
+.q4 .slot{left:var(--seat)!important;top:var(--top)!important;transform:none!important}
+@keyframes dealSeatV4{0%{opacity:0}10%{opacity:1}100%{opacity:1;left:var(--seat);top:var(--top);transform:none}}
+.q5 .source,.q5 .burn-card{left:15%;top:92px}
+.q5 .burn-card{animation-name:burnV4}
+.q5 .burnslot{left:70%;top:92px}
+@keyframes burnV4{0%{opacity:0}10%{opacity:1}100%{opacity:1;left:70%;transform:rotate(8deg)}}
+@media(max-width:760px){.cards{--gap:6px}.logic span{font-size:8px}.info .rule{font-size:11px}.dealer-stage .corner{font-size:clamp(12px,3.4vw,20px)}.dealer-stage .sym,.dealer-stage .sig{font-size:clamp(22px,6vw,35px)}}
+@media(max-width:360px){.cards{--gap:4px}}
+
+.q4 .fly,.q4 .slot{width:min(15%,86px)}
+/* Animate both faces explicitly for file-preview compositors. */
+.q6 .flipcard,.q7 .newturn,.q8 .newriver{animation:none;opacity:1;transform:none;perspective:700px;-webkit-perspective:700px}
+.flipcard .sideb{animation:backRevealV4 2.6s ease .2s both}
+.flipcard .sidef{animation:frontRevealV4 2.6s ease .2s both}
+.q6 .f2 .sideb,.q6 .f2 .sidef{animation-delay:.4s}
+.q6 .f3 .sideb,.q6 .f3 .sidef{animation-delay:.6s}
+@keyframes backRevealV4{0%,28%{transform:rotateY(0deg)}75%,100%{transform:rotateY(-180deg)}}
+@keyframes frontRevealV4{0%,28%{transform:rotateY(180deg)}75%,100%{transform:rotateY(0deg)}}
+
+/* v5: one geometry and one opaque back for every dealer card. */
+.side{overflow-y:auto}
+.reference{width:min(720px,100%);margin-top:18px;border-top:1px solid var(--line);padding-top:12px;font-size:12px;line-height:1.7;color:#81796f}
+.reference summary{cursor:pointer;padding:8px 0;color:#6d655b}
+.reference a{color:inherit}.example{margin:18px 0}.example h3{font-size:12px;font-weight:500}.example .cards{max-width:420px;margin:12px 0}
+.example .card,.example .suit{animation:none!important;opacity:1;transform:none}
+.card,.mcard,.face-card,.flipcard{container-type:inline-size}
+.card .corner,.dealer-stage .corner{top:8%;left:9%;width:19%;text-align:center;font:24cqw/.95 Georgia,"Times New Roman",serif}
+.card .corner small,.dealer-stage .corner small{font-size:.65em;line-height:1;margin-top:3cqw;text-align:center}
+.card .suit,.dealer-stage .sym,.dealer-stage .sig{position:absolute;inset:0;display:grid;place-items:center;font:47cqw/1 Georgia,"Times New Roman",serif}
+.dealer-stage{height:320px;--dw:min(13%,76px)}
+.dealer-stage .mcard,.dealer-stage .slot,.dealer-stage .flipcard,.dealer-stage .face-card{width:var(--dw);height:auto;aspect-ratio:5/7;border-radius:9px}
+.dealer-stage .source,.dealer-stage .packet,.dealer-stage .strip-packet{position:absolute;width:var(--dw);height:auto;aspect-ratio:5/7}
+.dealer-stage .source .mcard,.dealer-stage .packet .mcard,.dealer-stage .strip-packet .mcard{width:100%;height:100%;left:0;top:0}
+.dealer-stage .back,.dealer-stage .flipcard .sideb{background:#bc343a;border:1px solid #a82e34}
+.dealer-stage .back::before,.dealer-stage .sideb::before{content:"";position:absolute;inset:9%;border:1px solid #e6979a;border-radius:6px}
+.dealer-stage .back::after,.dealer-stage .sideb::after{content:"";position:absolute;inset:20%;border:1px solid #d56d72;border-radius:4px}
+.dealer-stage .face-card::before,.dealer-stage .sidef::before{content:none}
+.dealer-stage .flipcard .sidef,.dealer-stage .flipcard .sideb{inset:0;border-radius:9px}
+/* Stage-relative seats, with room below cards at every viewport. */
+.dealer-stage.q4 .source{left:5%;top:95px}
+.dealer-stage.q4 .fly{left:5%;top:95px;animation-name:dealSeatV5}
+.dealer-stage.q4 .f1,.dealer-stage.q4 .s1{--seat:23%;--top:165px}
+.dealer-stage.q4 .f2,.dealer-stage.q4 .s2{--seat:43%;--top:75px}
+.dealer-stage.q4 .f3,.dealer-stage.q4 .s3{--seat:63%;--top:165px}
+.dealer-stage.q4 .f4,.dealer-stage.q4 .s4{--seat:81%;--top:75px}
+@keyframes dealSeatV5{0%{opacity:0;left:5%;top:95px;transform:none}10%{opacity:1}100%{opacity:1;left:var(--seat);top:var(--top);transform:none}}
+.dealer-stage.q6,.dealer-stage.q7,.dealer-stage.q8{--start:6%;--step:18%}
+.dealer-stage.q6 .flipcard,.dealer-stage.q7 .face-card,.dealer-stage.q8 .face-card,.dealer-stage.q7 .newturn,.dealer-stage.q8 .newriver{top:106px}
+.dealer-stage .small-note{bottom:12px}
+.dealer-stage .extra-card{left:44%;top:104px;opacity:1}
+.wash .extra-card{animation:washV5 3s ease both;animation-delay:calc(var(--n)*.06s)}
+@keyframes washV5{0%{transform:translate(0,0) rotate(0)}35%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}65%{transform:translate(calc(-1 * var(--dx)),calc(-1 * var(--dy))) rotate(calc(-1 * var(--rot)))}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
+.spread .extra-card{animation:spreadV5 1.5s ease .3s both}
+@keyframes spreadV5{from{left:12%;transform:rotate(0)}to{left:calc(12% + var(--n)*12%);transform:rotate(0)}}
+.muck .extra-card{animation:muckV5 1.8s ease calc(var(--n)*.1s) both}
+@keyframes muckV5{from{left:calc(6% + var(--n)*15%);transform:translateY(var(--dy)) rotate(var(--rot))}to{left:44%;transform:translate(calc(var(--n)*2px),calc(var(--n)*2px)) rotate(var(--rot))}}
+.stack .extra-card{animation:stackV5 .8s ease calc(var(--n)*.35s) both}
+@keyframes stackV5{from{left:calc(6% + var(--n)*15%);transform:translateY(var(--dy)) rotate(var(--rot))}to{left:44%;transform:translateY(calc(var(--n)*2px)) rotate(0)}}
+.strip .strip-packet{left:24%;top:100px;animation:stripV5 1.2s ease both}
+.strip .sp0{animation-delay:.15s;--lift:0px}.strip .sp1{animation-delay:.8s;--lift:5px}.strip .sp2{animation-delay:1.45s;--lift:10px}
+.strip-packet .mcard:nth-child(2){transform:translateY(3px)}.strip-packet .mcard:nth-child(3){transform:translateY(6px)}
+@keyframes stripV5{0%{left:24%;transform:none}45%{left:42%;transform:translateY(-25px)}100%{left:62%;transform:translateY(var(--lift))}}
+@media(max-width:760px){.dealer-stage{height:290px}.side{overflow:visible}.dealer-stage.q4 .f1,.dealer-stage.q4 .s1,.dealer-stage.q4 .f3,.dealer-stage.q4 .s3{--top:160px}}
+#tab-dealing:checked ~ #d9:checked ~ .app .q9.deal{display:flex}
+#d9:checked ~ .app label[for=d9]{background:var(--soft);color:#000}
+#tab-dealing:checked ~ #d10:checked ~ .app .q10.deal{display:flex}
+#d10:checked ~ .app label[for=d10]{background:var(--soft);color:#000}
+#tab-dealing:checked ~ #d11:checked ~ .app .q11.deal{display:flex}
+#d11:checked ~ .app label[for=d11]{background:var(--soft);color:#000}
+#tab-dealing:checked ~ #d12:checked ~ .app .q12.deal{display:flex}
+#d12:checked ~ .app label[for=d12]{background:var(--soft);color:#000}
+#tab-dealing:checked ~ #d13:checked ~ .app .q13.deal{display:flex}
+#d13:checked ~ .app label[for=d13]{background:var(--soft);color:#000}
+
+.dealer-stage.q7 .community .face-card:nth-child(n),.dealer-stage.q8 .community .face-card:nth-child(n){top:106px}
+.dealer-stage .community .face-card .sym,.dealer-stage .flipcard .sig,.dealer-stage .face .sym{inset:0;display:grid;place-items:center;font:47cqw/1 Georgia,"Times New Roman",serif}
+.dealer-stage .flipcard{border:1px solid transparent}
+.dealer-stage .flipcard .sidef,.dealer-stage .flipcard .sideb{inset:-1px}
+
+/* v6: group movement and rank-only emphasis share a synchronized beat. */
+.rank{display:inline-block;transform-origin:center;vertical-align:baseline}
+.hand.fullhouse .cards > .card,.hand.twopair .cards > .card:nth-child(-n+4){animation:deal .45s ease calc(.07s + var(--i)*.1s) forwards,groupRiseV6 .6s ease 1.15s forwards}
+@keyframes groupRiseV6{from{opacity:1;transform:none}to{opacity:1;transform:translate(var(--gx),-8px)}}
+.quads .card:nth-child(-n+4) .rank,.fullhouse .card .rank,.trips .card:nth-child(-n+3) .rank,.twopair .card:nth-child(-n+4) .rank,.onepair .card:nth-child(-n+2) .rank{animation:rankPulseV6 .65s ease 1.78s both}
+@keyframes rankPulseV6{0%,100%{transform:scale(1)}45%{transform:scale(1.24)}}
+.suit-order{margin:12px 0 0;font-size:11px;line-height:1.7;color:#81796f}
+
+/* NOIR EDITION — independent visual branch of v6. */
+:root{--bg:#22231f;--paper:#f3f1e6;--ink:#f3f1e6;--muted:#a4a59a;--line:#505149;--soft:#363830;--red:#b8433e}
+html{background:#173044}
+body{background:linear-gradient(180deg,#112c43 0,#69777a 570px,#c9cbc1 1100px);padding:52px 28px 70px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{width:min(1260px,100%);margin:auto;min-height:0;grid-template-columns:235px minmax(0,1fr);border:1px solid #45483e;border-radius:20px;background:#22231f;overflow:hidden;box-shadow:0 30px 70px #071b2533}
+.masthead{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:24px 28px;border-bottom:1px solid var(--line);gap:16px}
+.wordmark{display:flex;align-items:center;gap:10px;font:29px/.95 Georgia,serif;letter-spacing:-1.2px}
+.ring{display:inline-block;width:23px;height:23px;border:7px solid var(--paper);border-radius:50%;flex-shrink:0}
+.edition{font:9px/1.5 ui-monospace,"Courier New",monospace;letter-spacing:1px;color:var(--muted);margin-left:18px}
+.mast-meta{display:flex;gap:24px;font:9px/1.5 ui-monospace,"Courier New",monospace;letter-spacing:1px;color:var(--muted)}
+.side{position:relative;top:auto;height:auto;padding:26px 18px;background:transparent;border-right:1px solid var(--line);overflow:visible}
+.brand{display:flex;justify-content:space-between;margin:0 4px 22px;font:10px ui-monospace,"Courier New",monospace;letter-spacing:2px;color:var(--muted)}
+.brand span{font-size:17px;color:var(--paper)}
+.mode-switch{border:1px solid #6a6c60;border-radius:32px;padding:4px;gap:2px;margin-bottom:24px}
+.mode-switch label{border:0;padding:9px 5px;min-height:38px;font:9px/1.4 ui-monospace,"Courier New",monospace;letter-spacing:.1px}
+#tab-hands:checked ~ .app .mode-switch label[for=tab-hands],#tab-dealing:checked ~ .app .mode-switch label[for=tab-dealing]{background:var(--paper);color:#24251f}
+.subnav{gap:0}
+.subnav label{border-bottom:1px solid #3f4138;border-radius:0;min-height:42px;padding:9px 8px;font-size:12px;color:#bfc0b4;gap:10px}
+.subnav label:hover{background:#33362d}
+.num{font:10px ui-monospace,"Courier New",monospace;flex:0 0 20px;color:#838779}
+.subnav label::after{content:'↗';margin-left:auto;opacity:.35;font-size:12px}
+#h1:checked ~ .app .subnav label[for=h1]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#h2:checked ~ .app .subnav label[for=h2]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#h3:checked ~ .app .subnav label[for=h3]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#h4:checked ~ .app .subnav label[for=h4]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#h5:checked ~ .app .subnav label[for=h5]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#h6:checked ~ .app .subnav label[for=h6]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#h7:checked ~ .app .subnav label[for=h7]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#h8:checked ~ .app .subnav label[for=h8]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#h9:checked ~ .app .subnav label[for=h9]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#h10:checked ~ .app .subnav label[for=h10]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#d1:checked ~ .app .subnav label[for=d1]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#d2:checked ~ .app .subnav label[for=d2]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#d3:checked ~ .app .subnav label[for=d3]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#d4:checked ~ .app .subnav label[for=d4]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#d5:checked ~ .app .subnav label[for=d5]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#d6:checked ~ .app .subnav label[for=d6]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#d7:checked ~ .app .subnav label[for=d7]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#d8:checked ~ .app .subnav label[for=d8]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#d9:checked ~ .app .subnav label[for=d9]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#d10:checked ~ .app .subnav label[for=d10]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#d11:checked ~ .app .subnav label[for=d11]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#d12:checked ~ .app .subnav label[for=d12]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+#d13:checked ~ .app .subnav label[for=d13]{background:var(--paper);color:#22231f;border-radius:7px;border-color:transparent}
+
+.index-note{margin:44px 5px 0}.index-note .ring{width:19px;height:19px;border-width:6px}.index-note p{font:23px/1.1 Georgia,serif;letter-spacing:-.5px;margin:15px 0}.index-note small{font-size:10px;line-height:1.8;color:#8e9386}
+.main{padding:26px 30px 30px;align-items:flex-start}
+.panel{min-height:0;width:100%;justify-content:flex-start}
+.panel > .motion-stage{order:1;margin:0 0 24px;width:100%;padding:16px 18px 20px;border:1px solid #52554a;border-radius:22px;background-color:#282b24;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='36'%3E%3Cpath d='M18 14v8m-4-4h8' stroke='%23868b79' stroke-opacity='.20' stroke-width='.7'/%3E%3C/svg%3E")}
+.stage-label{display:flex;justify-content:space-between;align-items:center;color:#a7ae9a;font:9px/1.4 ui-monospace,"Courier New",monospace;letter-spacing:1.6px;margin-bottom:30px}
+.study-mark{font-size:15px;letter-spacing:6px;color:#c6cabb}
+.hand > .motion-stage > .cards{margin:0 auto;width:100%;padding:14px 0 18px}
+.hand > .motion-stage > .logic{margin-top:16px}
+.card{background:var(--paper);border-color:#d0cebd;box-shadow:0 8px 14px #0002;border-radius:10px}
+.dealer-stage{width:100%;border:0;border-radius:0;background:none}
+.dealer-stage .caption{left:0;top:0;font-size:9px;color:#a7ae9a;letter-spacing:1px}
+.dealer-stage .small-note{font-size:8px;color:#969e89}
+.dealer-stage .back,.dealer-stage .flipcard .sideb{background:#757e67;border-color:#939b86}
+.dealer-stage .back::before,.dealer-stage .sideb::before{border-color:#b4bba6}
+.dealer-stage .back::after,.dealer-stage .sideb::after{border-color:#a0aa90}
+.dealer-stage .slot{border-color:#737a66;background:transparent}
+.panel > .head{order:2;margin:0 0 20px}
+.eyebrow{font:9px/1.5 ui-monospace,"Courier New",monospace;letter-spacing:1.7px;margin-bottom:12px;color:#a9ae9f}
+.dot{width:9px;height:9px;border:3px solid var(--paper);background:transparent}
+h1{font:clamp(42px,5.4vw,76px)/.95 Georgia,"Times New Roman",serif;letter-spacing:-3px;margin:0 0 16px;color:var(--paper)}
+.kr{font:11px/1.4 -apple-system,sans-serif;color:#a9ae9f;letter-spacing:0;margin-left:12px}
+.desc{font-size:13px;line-height:1.8;color:#c0c4b6;max-width:580px}
+.panel > .logic{order:3;margin:0 0 18px}
+.logic{gap:5px;min-height:0}
+.logic span{font:9px/1.4 ui-monospace,"Courier New",monospace;min-height:22px;padding:4px 8px;border-color:#555e4b;color:#a9b59c}
+.logic .accent{color:#e1e5ce;border-color:#81916e}
+.panel > .info{order:4;width:100%;margin-top:0;padding:16px 18px;border:1px solid #535749;border-radius:16px;display:grid;grid-template-columns:105px 1fr;gap:8px 16px}
+.info .label{font:9px/1.6 ui-monospace,"Courier New",monospace;letter-spacing:1px;color:#959e87;margin:0}
+.info .rule{font-size:12px;color:#b9c0ae;line-height:1.8}
+.info .note,.info .rank-order{grid-column:2;margin:2px 0 0}
+.note,.rank-order,.rank-order small,.suit-order{color:#9fa993}
+.panel > .reference,.panel > .note{order:5}.reference{width:100%;color:#aeb79f;border-color:#515749}.reference summary{color:#cbd2bf}.reference p{font-size:11px}.example h3{color:#dce2cf}
+.panel > .nextrow{order:6;width:100%;margin-top:20px;justify-content:space-between;flex-wrap:wrap}
+.nextrow label{font:10px/1.5 ui-monospace,"Courier New",monospace;color:#23251e;background:var(--paper);border:1px solid var(--paper);min-width:112px;min-height:38px;padding:9px 16px}
+.nextrow .ghost{color:#c5ccbb;border-color:#6d7562;background:transparent}
+.endmark{grid-column:1/-1;padding:24px 28px 22px;border-top:1px solid var(--line);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M20 16v8m-4-4h8' stroke='%23868b79' stroke-opacity='.2' stroke-width='.7'/%3E%3C/svg%3E")}
+.footer-meta{display:flex;justify-content:space-between;font:8px ui-monospace,"Courier New",monospace;letter-spacing:1px;color:#939b87}
+.footer-title{display:flex;align-items:center;gap:20px;font:clamp(40px,8vw,116px)/1.1 Georgia,serif;letter-spacing:-5px;margin:26px 0 0}
+.footer-title .ring{width:clamp(32px,7vw,92px);height:clamp(32px,7vw,92px);border-width:clamp(10px,2vw,27px)}
+@media(max-width:900px) and (min-width:761px){.app{grid-template-columns:200px minmax(0,1fr)}.main{padding:22px 18px}.mast-meta{display:none}.edition{font-size:8px}.panel>.info{grid-template-columns:1fr}.info .note,.info .rank-order{grid-column:1}}
+@media(max-width:760px){
+ body{padding:18px 10px 30px;background:linear-gradient(180deg,#163147,#7a8687 55%,#caccc1)}
+ .app{display:block;border-radius:22px}
+ .masthead{padding:20px 17px;align-items:flex-start}.wordmark{font-size:25px;flex-wrap:wrap;gap:8px}.edition{display:block;flex-basis:100%;margin-left:31px;font-size:7px;letter-spacing:1.1px}.mast-meta{display:none}
+ .side{padding:18px 16px 14px;border-right:0;border-bottom:1px solid var(--line)}.brand{margin:0 3px 12px;font-size:8px}.brand span{font-size:12px}
+ .mode-switch{margin-bottom:14px}.mode-switch label{font-size:10px;min-height:34px}
+ .subnav{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 10px}.subnav label{font-size:10px;min-height:33px;padding:7px 4px;gap:5px}.num{font-size:8px;flex-basis:15px}.subnav label::after{font-size:10px}
+ .index-note{display:none}.main{padding:16px 13px 23px}
+ .panel>.motion-stage{padding:12px 10px 14px;border-radius:17px;margin-bottom:22px}.stage-label{font-size:7px;letter-spacing:1px;margin-bottom:16px}.study-mark{font-size:11px;letter-spacing:4px}
+ .hand>.motion-stage>.cards{padding:14px 0 10px}.cards{--gap:4px}.card{border-radius:7px}.hand>.motion-stage>.logic{margin-top:10px}
+ .dealer-stage{height:290px}.dealer-stage .caption{font-size:7px;letter-spacing:.5px}
+ h1{font-size:clamp(37px,10vw,60px);letter-spacing:-1.8px;line-height:1.02;overflow-wrap:normal}.kr{font-size:10px;margin-left:7px}.desc{font-size:12px}.eyebrow{font-size:8px;letter-spacing:1px}
+ .panel>.info{padding:13px;border-radius:14px;grid-template-columns:1fr;gap:8px}.info .rule{font-size:11px}.info .note,.info .rank-order{grid-column:1}.logic span{font-size:8px;padding:4px 6px}
+ .endmark{padding:18px 16px}.footer-meta{font-size:6px;letter-spacing:.6px}.footer-title{font-size:clamp(29px,8vw,55px);letter-spacing:-1.5px;gap:9px;margin-top:20px}.footer-title .ring{width:28px;height:28px;border-width:9px}
+}
+
+/* Poker Anatomy / legibility and CSS-only replay */
+.brand-spade{font:34px/1 Georgia,serif;display:inline-block;margin-right:1px}
+.wordmark{letter-spacing:-1px}
+.edition,.mast-meta{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;font-weight:500;letter-spacing:.8px;color:#c8cdbe}
+.mode-switch label{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;font-weight:600;letter-spacing:0;color:#d8ddce}
+.mode-switch{margin-left:-5px;margin-right:-5px}
+.logic{animation:none!important;opacity:1;transform:none}
+.logic span{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;font-weight:500;color:#c8d0bb;border-color:#77836b;padding:5px 9px;min-height:27px;letter-spacing:.1px}
+.logic .accent{color:#eef1dd;border-color:#a2b38b}
+.dot{width:5px;height:5px;background:var(--paper);border:0}
+.index-note p{font-size:24px;line-height:1.15;margin:0 0 14px}
+.index-note small{display:block;font-size:11px;line-height:1.4;color:#aab29e}
+.endmark{background-image:none;padding-top:20px;padding-bottom:20px}
+.footer-credit{font:12px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#c8cebc;margin:0 0 6px}
+.footer-explainer{font-size:11px;line-height:1.4;color:#98a28c;margin:0}
+.replay-state{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.panel > .replay-b{display:none}
+.replay-state:checked ~ .replay-a{display:none}
+.replay-state:checked ~ .replay-b{display:block}
+.replay-control{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #69745e;border-radius:50%;color:#e1e7d3;cursor:pointer;font:25px/1 -apple-system,sans-serif;letter-spacing:0}
+.replay-control:hover{background:#404937;border-color:#b2c199}
+.replay-state:focus-visible ~ .motion-stage .replay-control{outline:2px solid #edf3d7;outline-offset:3px}
+.stage-label{min-height:36px;margin-bottom:20px}
+@media(max-width:900px) and (min-width:761px){.mode-switch label{font-size:10px}.edition{font-size:10px}}
+@media(max-width:760px){
+ .brand-spade{font-size:29px}.edition{font-size:9px;margin-left:31px;color:#c8cdbe;letter-spacing:.6px}.wordmark{font-size:25px}
+ .mode-switch label{font-size:11px}.logic span{font-size:10px;padding:5px 8px}.stage-label{margin-bottom:12px}.replay-control{width:36px;height:36px;font-size:24px}
+ .footer-credit{font-size:11px}.footer-explainer{font-size:10px}
+}
+
+/* Burgundy velvet: procedural fibres, self-contained and offline. */
+html{background:#300b12}
+body{background-color:#490f1a;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22240%22%20height%3D%22240%22%3E%3Cfilter%20id%3D%22velvet%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%22.055%20.38%22%20numOctaves%3D%223%22%20stitchTiles%3D%22stitch%22/%3E%3CfeColorMatrix%20type%3D%22saturate%22%20values%3D%220%22/%3E%3C/filter%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20filter%3D%22url%28%23velvet%29%22%20opacity%3D%22.48%22/%3E%3C/svg%3E") ,radial-gradient(ellipse at 12% 18%,#742535 0,transparent 58%),radial-gradient(ellipse at 85% 75%,#25070d 0,transparent 65%);background-size:240px 240px,100% 100%,100% 100%;background-blend-mode:soft-light,normal,normal;background-attachment:fixed}
+.mode-switch{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2px}
+.mode-switch label{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:10px;font-weight:500;letter-spacing:0;white-space:nowrap;padding:9px 3px;min-width:0}
+.nextrow label{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:11.3px;font-weight:400;letter-spacing:.15px}
+.deal > .motion-stage > .logic{margin:14px 0 0;width:100%}
+@media(max-width:760px){.mode-switch label{font-size:11px}.nextrow label{font-size:11.3px}}
+@media(min-width:761px) and (max-width:900px){.app{grid-template-columns:240px minmax(0,1fr)}}
+</style>
+</head>
+<body>
+
+<input type="radio" name="mode" id="tab-hands" checked>
+<input type="radio" name="mode" id="tab-dealing">
+
+<input type="radio" name="hand" id="h1">
+<input type="radio" name="hand" id="h2">
+<input type="radio" name="hand" id="h3">
+<input type="radio" name="hand" id="h4">
+<input type="radio" name="hand" id="h5">
+<input type="radio" name="hand" id="h6" checked>
+<input type="radio" name="hand" id="h7">
+<input type="radio" name="hand" id="h8">
+<input type="radio" name="hand" id="h9">
+<input type="radio" name="hand" id="h10">
+
+<input type="radio" name="deal" id="d1" checked>
+<input type="radio" name="deal" id="d2">
+<input type="radio" name="deal" id="d3">
+<input type="radio" name="deal" id="d4">
+<input type="radio" name="deal" id="d5">
+<input type="radio" name="deal" id="d6">
+<input type="radio" name="deal" id="d7">
+<input type="radio" name="deal" id="d8">
+<input type="radio" name="deal" id="d9">
+<input type="radio" name="deal" id="d10">
+<input type="radio" name="deal" id="d11">
+<input type="radio" name="deal" id="d12">
+<input type="radio" name="deal" id="d13">
+
+
+<div class="app">
+<header class="masthead"><div class="wordmark"><span class="brand-spade" aria-hidden="true">♠</span>Poker Anatomy<span class="edition">NO. 01 / INTERACTION ATLAS</span></div><div class="mast-meta">52 CARDS<span>∞ POSSIBILITIES</span></div></header>
+  <aside class="side">
+    <div class="brand">THE INDEX</div>
+
+    <div class="mode-switch">
+      <label for="tab-hands">Hand Rankings</label>
+      <label for="tab-dealing">Dealer Motions</label>
+    </div>
+
+    <nav class="subnav nav-hands">
+      <label for="h1"><span class="num">01</span><span>Royal Flush</span></label>
+      <label for="h2"><span class="num">02</span><span>Straight Flush</span></label>
+      <label for="h3"><span class="num">03</span><span>Four of a Kind</span></label>
+      <label for="h4"><span class="num">04</span><span>Full House</span></label>
+      <label for="h5"><span class="num">05</span><span>Flush</span></label>
+      <label for="h6"><span class="num">06</span><span>Straight</span></label>
+      <label for="h7"><span class="num">07</span><span>Three of a Kind</span></label>
+      <label for="h8"><span class="num">08</span><span>Two Pair</span></label>
+      <label for="h9"><span class="num">09</span><span>One Pair</span></label>
+      <label for="h10"><span class="num">10</span><span>High Card</span></label>
+    </nav>
+
+    <nav class="subnav nav-deal">
+      <label for="d1"><span class="num">01</span><span>Shuffle</span></label>
+      <label for="d2"><span class="num">02</span><span>Square</span></label>
+      <label for="d3"><span class="num">03</span><span>Cut</span></label>
+      <label for="d4"><span class="num">04</span><span>Deal</span></label>
+      <label for="d5"><span class="num">05</span><span>Burn</span></label>
+      <label for="d6"><span class="num">06</span><span>Flop</span></label>
+      <label for="d7"><span class="num">07</span><span>Turn</span></label>
+      <label for="d8"><span class="num">08</span><span>River</span></label><label for="d9"><span class="num">09</span><span>Wash</span></label><label for="d10"><span class="num">10</span><span>Strip</span></label><label for="d11"><span class="num">11</span><span>Spread</span></label><label for="d12"><span class="num">12</span><span>Muck</span></label><label for="d13"><span class="num">13</span><span>Stack</span></label>
+    </nav>
+  <div class="index-note"><p>Playing Card<br>Anatomy.</p><small>카드의 규칙과 움직임을 관찰하는<br>인터랙션 아카이브.</small></div></aside>
+
+  <main class="main">
+    <!-- HANDS -->
+    <section class="panel p1 hand royal">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>01 · Highest Hand</div>
+        <h1>Royal Flush <span class="kr">로열 플러시</span></h1>
+        <p class="desc">가장 높은 다섯 숫자가 연속되고, 무늬까지 모두 같다.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-1" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-1" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card red"><div class="corner"><span class="rank">10</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">J</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">Q</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">K</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">A</span><small>♥</small></div><div class="suit">♥</div></div>
+        </div>
+        <div class="logic"><span class="accent">10 → J → Q → K → A</span><span>same suit</span></div>
+      </div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-1" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card red"><div class="corner"><span class="rank">10</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">J</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">Q</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">K</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">A</span><small>♥</small></div><div class="suit">♥</div></div>
+        </div>
+        <div class="logic"><span class="accent">10 → J → Q → K → A</span><span>same suit</span></div>
+      </div>
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">10부터 A까지 차례로 놓인 뒤 다섯 장이 함께 떠오르고, 같은 하트 무늬가 동시에 강조된다.</div><div class="note">일반적인 하이 포커 / 텍사스 홀덤 족보 기준</div></div>
+      <div class="reference"><p>기준: 조커 없는 52장, 표준 텍사스 홀덤의 하이 핸드 순위. Royal Flush(국내에서 로열 스트레이트 플러시라고도 부름)는 A까지 이어지는 최고 스트레이트 플러시다. 기존 10종에 빠진 표준 족보는 없다.</p><a href="https://www.pokerstars.com/poker/games/rules/hand-rankings/">PokerStars 표준 족보 기준 ↗</a></div>
+      <div class="nextrow"><label for="h2">Next →</label><label class="ghost" for="tab-dealing">Dealer Motions</label></div>
+    </section>
+
+    <section class="panel p2 hand straightflush">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>02 · Sequence + Same Suit</div>
+        <h1>Straight Flush <span class="kr">스트레이트 플러시</span></h1>
+        <p class="desc">연속된 다섯 숫자가 모두 같은 무늬다.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-2" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-2" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">5</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card black"><div class="corner"><span class="rank">6</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card black"><div class="corner"><span class="rank">7</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card black"><div class="corner"><span class="rank">8</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card black"><div class="corner"><span class="rank">9</span><small>♠</small></div><div class="suit">♠</div></div>
+        </div>
+        <div class="logic"><span class="accent">5 → 6 → 7 → 8 → 9</span><span>all ♠</span></div>
+      </div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-2" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">5</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card black"><div class="corner"><span class="rank">6</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card black"><div class="corner"><span class="rank">7</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card black"><div class="corner"><span class="rank">8</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card black"><div class="corner"><span class="rank">9</span><small>♠</small></div><div class="suit">♠</div></div>
+        </div>
+        <div class="logic"><span class="accent">5 → 6 → 7 → 8 → 9</span><span>all ♠</span></div>
+      </div>
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">숫자가 순서대로 한 장씩 올라간 뒤 다섯 장의 스페이드가 동시에 한 번 더 강조된다.</div><div class="note">Royal Flush는 이 조합의 가장 높은 형태다.</div></div>
+      <details class="reference"><summary>백스트레이트 플러시의 표준 순위</summary><div class="example"><h3>Five-high straight flush</h3><div class="cards"><div class="card black"><div class="corner"><span class="rank">A</span><small>♠</small></div><div class="suit">♠</div></div><div class="card black"><div class="corner"><span class="rank">2</span><small>♠</small></div><div class="suit">♠</div></div><div class="card black"><div class="corner"><span class="rank">3</span><small>♠</small></div><div class="suit">♠</div></div><div class="card black"><div class="corner"><span class="rank">4</span><small>♠</small></div><div class="suit">♠</div></div><div class="card black"><div class="corner"><span class="rank">5</span><small>♠</small></div><div class="suit">♠</div></div></div><p>모두 같은 무늬의 A–2–3–4–5. 스트레이트 플러시 중 가장 낮으며, 로열 플러시 바로 아래 순위가 아니다.</p></div></details>
+      <div class="nextrow"><label for="h3">Next →</label></div>
+    </section>
+
+    <section class="panel p3 hand quads">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>03 · Four Matching Ranks</div>
+        <h1>Four of a Kind <span class="kr">포카드</span></h1>
+        <p class="desc">같은 숫자 네 장 + 나머지 한 장.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-3" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-3" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">8</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">8</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">8</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">8</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card black"><div class="corner"><span class="rank">K</span><small>♠</small></div><div class="suit">♠</div></div>
+        </div>
+        <div class="logic"><span class="accent">8 × 4</span><span>kicker: K</span></div>
+      </div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-3" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">8</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">8</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">8</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">8</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card black"><div class="corner"><span class="rank">K</span><small>♠</small></div><div class="suit">♠</div></div>
+        </div>
+        <div class="logic"><span class="accent">8 × 4</span><span>kicker: K</span></div>
+      </div>
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">같은 숫자 8 네 장은 위로 묶여 강조되고, 조건에 포함되지 않는 K 한 장은 아래로 빠지며 흐려진다.</div></div>
+      <div class="note">Four of a Kind / Quads · 국내에서 흔히 ‘포카드’라고 부른다.</div>
+      <div class="nextrow"><label for="h4">Next →</label></div>
+    </section>
+
+    <section class="panel p4 hand fullhouse">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>04 · Three + Two</div>
+        <h1>Full House <span class="kr">풀 하우스</span></h1>
+        <p class="desc">같은 숫자 세 장과, 다른 같은 숫자 두 장.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-4" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-4" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">Q</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">Q</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">Q</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">4</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card red"><div class="corner"><span class="rank">4</span><small>♥</small></div><div class="suit">♥</div></div>
+        </div>
+        <div class="logic"><span class="accent">Q × 3</span><span>+</span><span class="accent">4 × 2</span></div>
+      </div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-4" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">Q</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">Q</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">Q</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">4</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card red"><div class="corner"><span class="rank">4</span><small>♥</small></div><div class="suit">♥</div></div>
+        </div>
+        <div class="logic"><span class="accent">Q × 3</span><span>+</span><span class="accent">4 × 2</span></div>
+      </div>
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">세 장과 두 장이 동시에 같은 높이로 올라오면서 각각 붙는다. 묶인 숫자가 함께 커졌다 돌아오며 3 + 2 구조를 강조한다.</div></div>
+      <div class="nextrow"><label for="h5">Next →</label></div>
+    </section>
+
+    <section class="panel p5 hand flush">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>05 · Same Suit</div>
+        <h1>Flush <span class="kr">플러시</span></h1>
+        <p class="desc">숫자의 순서는 제각각이지만 무늬가 모두 같다.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-5" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-5" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card red"><div class="corner"><span class="rank">2</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card red"><div class="corner"><span class="rank">6</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card red"><div class="corner"><span class="rank">9</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card red"><div class="corner"><span class="rank">J</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card red"><div class="corner"><span class="rank">K</span><small>♦</small></div><div class="suit">♦</div></div>
+        </div>
+        <div class="logic"><span>2 · 6 · 9 · J · K</span><span class="accent">all ♦</span></div>
+      </div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-5" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card red"><div class="corner"><span class="rank">2</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card red"><div class="corner"><span class="rank">6</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card red"><div class="corner"><span class="rank">9</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card red"><div class="corner"><span class="rank">J</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card red"><div class="corner"><span class="rank">K</span><small>♦</small></div><div class="suit">♦</div></div>
+        </div>
+        <div class="logic"><span>2 · 6 · 9 · J · K</span><span class="accent">all ♦</span></div>
+      </div>
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">카드가 서로 다른 높이에서 흩어져 들어온 뒤 한 줄로 정렬되고, 공통 요소인 다이아몬드 무늬만 동시에 반응한다.</div></div>
+      <div class="nextrow"><label for="h6">Next →</label></div>
+    </section>
+
+    <section class="panel p6 hand straight">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>06 · Five in a Row</div>
+        <h1>Straight <span class="kr">스트레이트</span></h1>
+        <p class="desc">무늬와 관계없이 숫자 다섯 개가 연속된다.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-6" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-6" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">2</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card red"><div class="corner"><span class="rank">3</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card black"><div class="corner"><span class="rank">4</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">5</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">6</span><small>♣</small></div><div class="suit">♣</div></div>
+        </div>
+        <div class="logic"><span class="accent">2 → 3 → 4 → 5 → 6</span><span>mixed suits</span></div>
+      </div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-6" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">2</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card red"><div class="corner"><span class="rank">3</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card black"><div class="corner"><span class="rank">4</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">5</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">6</span><small>♣</small></div><div class="suit">♣</div></div>
+        </div>
+        <div class="logic"><span class="accent">2 → 3 → 4 → 5 → 6</span><span>mixed suits</span></div>
+      </div>
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">2부터 6까지 왼쪽에서 오른쪽으로 차례대로 ‘툭’ 올라갔다 내려오며 숫자의 연속성을 읽게 한다.</div></div>
+      <details class="reference"><summary>마운틴 · 백스트레이트는 어디에 속할까?</summary><div class="example"><h3>Ace-high straight · 마운틴</h3><div class="cards"><div class="card black"><div class="corner"><span class="rank">10</span><small>♣</small></div><div class="suit">♣</div></div><div class="card red"><div class="corner"><span class="rank">J</span><small>♥</small></div><div class="suit">♥</div></div><div class="card black"><div class="corner"><span class="rank">Q</span><small>♠</small></div><div class="suit">♠</div></div><div class="card red"><div class="corner"><span class="rank">K</span><small>♦</small></div><div class="suit">♦</div></div><div class="card black"><div class="corner"><span class="rank">A</span><small>♣</small></div><div class="suit">♣</div></div></div><p>가장 높은 스트레이트. 영어권에서는 Broadway라고도 부른다.</p></div><div class="example"><h3>Five-high straight · 백스트레이트</h3><div class="cards"><div class="card black"><div class="corner"><span class="rank">A</span><small>♣</small></div><div class="suit">♣</div></div><div class="card red"><div class="corner"><span class="rank">2</span><small>♥</small></div><div class="suit">♥</div></div><div class="card black"><div class="corner"><span class="rank">3</span><small>♠</small></div><div class="suit">♠</div></div><div class="card red"><div class="corner"><span class="rank">4</span><small>♦</small></div><div class="suit">♦</div></div><div class="card black"><div class="corner"><span class="rank">5</span><small>♣</small></div><div class="suit">♣</div></div></div><p>Wheel이라고도 부르는 가장 낮은 스트레이트. 2–3–4–5–6보다 낮다.</p></div><p>표준 텍사스 홀덤에서는 둘 다 Straight에 포함되며 독립된 족보 순위가 아니다.</p></details>
+      <div class="nextrow"><label for="h7">Next →</label></div>
+    </section>
+
+    <section class="panel p7 hand trips">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>07 · Three Matching Ranks</div>
+        <h1>Three of a Kind <span class="kr">트리플</span></h1>
+        <p class="desc">같은 숫자 세 장.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-7" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-7" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">7</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">7</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">7</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">J</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card black"><div class="corner"><span class="rank">2</span><small>♠</small></div><div class="suit">♠</div></div>
+        </div>
+        <div class="logic"><span class="accent">7 × 3</span><span>kickers: J, 2</span></div>
+      </div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-7" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">7</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">7</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">7</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">J</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card black"><div class="corner"><span class="rank">2</span><small>♠</small></div><div class="suit">♠</div></div>
+        </div>
+        <div class="logic"><span class="accent">7 × 3</span><span>kickers: J, 2</span></div>
+      </div>
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">같은 7 세 장만 위로 떠오르고, J와 2는 아래로 빠지며 흐려져 ‘세 장의 일치’를 강조한다.</div></div>
+      <div class="nextrow"><label for="h8">Next →</label></div>
+    </section>
+
+    <section class="panel p8 hand twopair">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>08 · Two Matching Pairs</div>
+        <h1>Two Pair <span class="kr">투 페어</span></h1>
+        <p class="desc">같은 숫자 두 장짜리 묶음이 두 개.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-8" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-8" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">A</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">A</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">5</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">5</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card black"><div class="corner"><span class="rank">9</span><small>♠</small></div><div class="suit">♠</div></div>
+        </div>
+        <div class="logic"><span class="accent">A + A</span><span class="accent">5 + 5</span><span>kicker: 9</span></div>
+      </div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-8" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">A</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">A</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card red"><div class="corner"><span class="rank">5</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">5</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card black"><div class="corner"><span class="rank">9</span><small>♠</small></div><div class="suit">♠</div></div>
+        </div>
+        <div class="logic"><span class="accent">A + A</span><span class="accent">5 + 5</span><span>kicker: 9</span></div>
+      </div>
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">A 두 장과 5 두 장이 함께 올라오며 각각 붙는다. 같은 숫자끼리 동시에 커졌다 돌아오고, 키커 9만 뒤로 물러난다.</div></div>
+      <div class="nextrow"><label for="h9">Next →</label></div>
+    </section>
+
+    <section class="panel p9 hand onepair">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>09 · One Matching Pair</div>
+        <h1>One Pair <span class="kr">원 페어</span></h1>
+        <p class="desc">같은 숫자 두 장.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-9" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-9" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">K</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card red"><div class="corner"><span class="rank">K</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card black"><div class="corner"><span class="rank">3</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">8</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">10</span><small>♣</small></div><div class="suit">♣</div></div>
+        </div>
+        <div class="logic"><span class="accent">K + K</span><span>kickers: 3 · 8 · 10</span></div>
+      </div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-9" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">K</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card red"><div class="corner"><span class="rank">K</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card black"><div class="corner"><span class="rank">3</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">8</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">10</span><small>♣</small></div><div class="suit">♣</div></div>
+        </div>
+        <div class="logic"><span class="accent">K + K</span><span>kickers: 3 · 8 · 10</span></div>
+      </div>
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">두 K는 원래 자리와 간격을 유지하며 숫자 K만 함께 커졌다 돌아온다. 나머지 키커 세 장은 뒤로 물러나며 흐려진다.</div></div>
+      <div class="nextrow"><label for="h10">Next →</label></div>
+    </section>
+
+    <section class="panel p10 hand highcard">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>10 · No Combination</div>
+        <h1>High Card <span class="kr">하이 카드</span></h1>
+        <p class="desc">어떤 조합도 없으면 가장 높은 카드부터 비교한다.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-10" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-10" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">2</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card red"><div class="corner"><span class="rank">5</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">8</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">J</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card black"><div class="corner"><span class="rank">A</span><small>♣</small></div><div class="suit">♣</div></div>
+        </div>
+        <div class="logic"><span>2 → 5 → 8 → J →</span><span class="accent">A HIGH</span></div>
+      </div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-10" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="cards">
+          <div class="card black"><div class="corner"><span class="rank">2</span><small>♣</small></div><div class="suit">♣</div></div>
+          <div class="card red"><div class="corner"><span class="rank">5</span><small>♦</small></div><div class="suit">♦</div></div>
+          <div class="card black"><div class="corner"><span class="rank">8</span><small>♠</small></div><div class="suit">♠</div></div>
+          <div class="card red"><div class="corner"><span class="rank">J</span><small>♥</small></div><div class="suit">♥</div></div>
+          <div class="card black"><div class="corner"><span class="rank">A</span><small>♣</small></div><div class="suit">♣</div></div>
+        </div>
+        <div class="logic"><span>2 → 5 → 8 → J →</span><span class="accent">A HIGH</span></div>
+      </div>
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">낮은 카드부터 하나씩 스캔하듯 반응하고 흐려진 뒤, 마지막으로 가장 높은 A만 위에 남는다.</div><div class="rank-order">높은 순서: A &gt; K &gt; Q &gt; J &gt; 10 &gt; 9 &gt; 8 &gt; 7 &gt; 6 &gt; 5 &gt; 4 &gt; 3 &gt; 2<br><small>가장 높은 카드가 같으면 다음 높은 카드를 차례로 비교한다. 스트레이트에서는 A가 A–2–3–4–5의 낮은 카드로도 쓰인다.</small><p class="suit-order">무늬의 우열은 없다: ♠ = ♥ = ♦ = ♣<br>표준 텍사스 홀덤에서는 다섯 장의 숫자를 높은 순서대로 비교한다. 모두 같으면 무늬와 관계없이 동률이며 팟을 나눈다.</p></div></div>
+      <div class="nextrow"><label for="h1">Back to 01 ↺</label><label class="ghost" for="tab-dealing">Dealer Motions</label></div>
+    </section>
+
+    <!-- DEALER MOTIONS -->
+    <section class="panel q1 deal">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>01 · Dealer Motion</div>
+        <h1>Shuffle <span class="kr">섞기</span></h1>
+        <p class="desc">두 카드 묶음이 맞물려 하나의 순서 없는 덱으로 섞인다.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-11" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-11" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q1">
+          <div class="caption">interleave two packets</div>
+          <div class="mcard back c1"></div><div class="mcard back c2"></div><div class="mcard back c3"></div><div class="mcard back c4"></div>
+          <div class="mcard back c5"></div><div class="mcard back c6"></div><div class="mcard back c7"></div><div class="mcard back c8"></div>
+          <div class="small-note">riffle-like mixing</div>
+        </div>
+      <div class="logic"><span class="accent">split</span><span>interleave</span><span>mix</span></div></div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-11" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q1">
+          <div class="caption">interleave two packets</div>
+          <div class="mcard back c1"></div><div class="mcard back c2"></div><div class="mcard back c3"></div><div class="mcard back c4"></div>
+          <div class="mcard back c5"></div><div class="mcard back c6"></div><div class="mcard back c7"></div><div class="mcard back c8"></div>
+          <div class="small-note">riffle-like mixing</div>
+        </div>
+      <div class="logic"><span class="accent">split</span><span>interleave</span><span>mix</span></div></div>
+      
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">왼쪽과 오른쪽의 카드 묶음이 중앙에서 번갈아 끼어들며 섞이는 모습을 추상적으로 그래픽화했다.</div><div class="note">실제 딜러의 셔플은 리플, 스트립, 워시 등 여러 방식이 있다.</div></div>
+      <div class="nextrow"><label for="d2">Next →</label><label class="ghost" for="tab-hands">Hand Rankings</label></div>
+    </section>
+
+    <section class="panel q2 deal">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>02 · Dealer Motion</div>
+        <h1>Square <span class="kr">정돈하기</span></h1>
+        <p class="desc">흩어진 카드를 정확한 직사각형 덱으로 맞춘다.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-12" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-12" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q2">
+          <div class="caption">align all edges</div>
+          <div class="mcard back m1"></div><div class="mcard back m2"></div><div class="mcard back m3"></div>
+          <div class="mcard back m4"></div><div class="mcard back m5"></div><div class="mcard back m6"></div>
+          <div class="small-note">square the deck</div>
+        </div>
+      <div class="logic"><span class="accent">scatter</span><span>compress</span><span>align</span></div></div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-12" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q2">
+          <div class="caption">align all edges</div>
+          <div class="mcard back m1"></div><div class="mcard back m2"></div><div class="mcard back m3"></div>
+          <div class="mcard back m4"></div><div class="mcard back m5"></div><div class="mcard back m6"></div>
+          <div class="small-note">square the deck</div>
+        </div>
+      <div class="logic"><span class="accent">scatter</span><span>compress</span><span>align</span></div></div>
+      
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">흩어진 카드들이 중앙으로 모이며 각 모서리가 맞는 한 덩어리의 ‘덱’으로 수렴한다.</div></div>
+      <div class="nextrow"><label for="d3">Next →</label></div>
+    </section>
+
+    <section class="panel q3 deal">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>03 · Dealer Motion</div>
+        <h1>Cut <span class="kr">컷하기</span></h1>
+        <p class="desc">덱을 둘로 나눈 뒤 두 묶음의 위치를 바꾼다.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-13" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-13" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q3">
+          <div class="caption">separate and swap</div>
+          <div class="packet top-packet">
+            <div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div>
+          </div>
+          <div class="packet bot-packet">
+            <div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div>
+          </div>
+          <div class="small-note">divide the deck</div>
+        </div>
+      <div class="logic"><span class="accent">split in half</span><span>swap order</span></div></div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-13" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q3">
+          <div class="caption">separate and swap</div>
+          <div class="packet top-packet">
+            <div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div>
+          </div>
+          <div class="packet bot-packet">
+            <div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div>
+          </div>
+          <div class="small-note">divide the deck</div>
+        </div>
+      <div class="logic"><span class="accent">split in half</span><span>swap order</span></div></div>
+      
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">한 덱이 위/아래 두 묶음으로 분리된 뒤 좌우로 교차하며 위치가 바뀌는 동작을 단순화했다.</div></div>
+      <div class="nextrow"><label for="d4">Next →</label></div>
+    </section>
+
+    <section class="panel q4 deal">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>04 · Dealer Motion</div>
+        <h1>Deal <span class="kr">돌리기</span></h1>
+        <p class="desc">덱 맨 위의 카드를 한 장씩 각 자리로 배분한다.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-14" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-14" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q4">
+          <div class="caption">one card to each seat</div>
+          <div class="source">
+            <div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div>
+          </div>
+          <div class="slot s1"></div><div class="slot s2"></div><div class="slot s3"></div><div class="slot s4"></div>
+          <div class="mcard back fly f1"></div><div class="mcard back fly f2"></div><div class="mcard back fly f3"></div><div class="mcard back fly f4"></div>
+          <div class="small-note">distribute to players</div>
+        </div>
+      <div class="logic"><span class="accent">peel</span><span>slide</span><span>distribute</span></div></div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-14" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q4">
+          <div class="caption">one card to each seat</div>
+          <div class="source">
+            <div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div>
+          </div>
+          <div class="slot s1"></div><div class="slot s2"></div><div class="slot s3"></div><div class="slot s4"></div>
+          <div class="mcard back fly f1"></div><div class="mcard back fly f2"></div><div class="mcard back fly f3"></div><div class="mcard back fly f4"></div>
+          <div class="small-note">distribute to players</div>
+        </div>
+      <div class="logic"><span class="accent">peel</span><span>slide</span><span>distribute</span></div></div>
+      
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">왼쪽의 소스 덱에서 카드가 한 장씩 빠져나가 4개의 플레이어 슬롯으로 순서대로 미끄러져 간다.</div></div>
+      <div class="nextrow"><label for="d5">Next →</label></div>
+    </section>
+
+    <section class="panel q5 deal">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>05 · Dealer Motion</div>
+        <h1>Burn <span class="kr">번 카드 버리기</span></h1>
+        <p class="desc">커뮤니티 카드를 공개하기 전에 맨 위 한 장을 옆으로 빼서 제외한다.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-15" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-15" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q5">
+          <div class="caption">remove one face-down card</div>
+          <div class="source">
+            <div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div>
+          </div>
+          <div class="slot burnslot"></div>
+          <div class="mcard back burn-card"></div>
+          <div class="small-note">discard before reveal</div>
+        </div>
+      <div class="logic"><span class="accent">take top card</span><span>set aside</span><span>exclude</span></div></div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-15" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q5">
+          <div class="caption">remove one face-down card</div>
+          <div class="source">
+            <div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div>
+          </div>
+          <div class="slot burnslot"></div>
+          <div class="mcard back burn-card"></div>
+          <div class="small-note">discard before reveal</div>
+        </div>
+      <div class="logic"><span class="accent">take top card</span><span>set aside</span><span>exclude</span></div></div>
+      
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">한 장이 따로 빠져 오른쪽 버닝 존으로 이동하며, 공개되지 않은 채 게임 흐름에서 제외되는 모습을 보여준다.</div></div>
+      <div class="nextrow"><label for="d6">Next →</label></div>
+    </section>
+
+    <section class="panel q6 deal">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>06 · Dealer Motion</div>
+        <h1>Flop <span class="kr">플랍</span></h1>
+        <p class="desc">번 카드 이후 커뮤니티 카드 3장을 한꺼번에 공개한다.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-16" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-16" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q6">
+          <div class="caption">reveal three community cards</div>
+          
+          <div class="flipcard black f1" data-rank="A&#10;♠">
+            <div class="sideb"></div>
+            <div class="sidef"><div class="corner"><span class="rank">A</span><small>♠</small></div><div class="sig">♠</div></div>
+          </div>
+          <div class="flipcard red f2" data-rank="8&#10;♥">
+            <div class="sideb"></div>
+            <div class="sidef"><div class="corner"><span class="rank">8</span><small>♥</small></div><div class="sig">♥</div></div>
+          </div>
+          <div class="flipcard red f3" data-rank="J&#10;♦">
+            <div class="sideb"></div>
+            <div class="sidef"><div class="corner"><span class="rank">J</span><small>♦</small></div><div class="sig">♦</div></div>
+          </div>
+          <div class="small-note">3 cards open</div>
+        </div>
+      <div class="logic"><span class="accent">burn</span><span>flip × 3</span><span>community opens</span></div></div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-16" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q6">
+          <div class="caption">reveal three community cards</div>
+          
+          <div class="flipcard black f1" data-rank="A&#10;♠">
+            <div class="sideb"></div>
+            <div class="sidef"><div class="corner"><span class="rank">A</span><small>♠</small></div><div class="sig">♠</div></div>
+          </div>
+          <div class="flipcard red f2" data-rank="8&#10;♥">
+            <div class="sideb"></div>
+            <div class="sidef"><div class="corner"><span class="rank">8</span><small>♥</small></div><div class="sig">♥</div></div>
+          </div>
+          <div class="flipcard red f3" data-rank="J&#10;♦">
+            <div class="sideb"></div>
+            <div class="sidef"><div class="corner"><span class="rank">J</span><small>♦</small></div><div class="sig">♦</div></div>
+          </div>
+          <div class="small-note">3 cards open</div>
+        </div>
+      <div class="logic"><span class="accent">burn</span><span>flip × 3</span><span>community opens</span></div></div>
+      
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">번 카드를 제외한 뒤 커뮤니티 카드 세 장을 공개하는 과정을 보여준다.</div></div>
+      <div class="nextrow"><label for="d7">Next →</label></div>
+    </section>
+
+    <section class="panel q7 deal">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>07 · Dealer Motion</div>
+        <h1>Turn <span class="kr">턴</span></h1>
+        <p class="desc">플랍 이후 한 장의 커뮤니티 카드가 추가로 공개된다.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-17" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-17" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q7">
+          <div class="caption">reveal the fourth community card</div>
+          
+          <div class="community">
+            <div class="face-card black" data-rank="A&#10;♠"><div class="corner"><span class="rank">A</span><small>♠</small></div><div class="sym">♠</div></div>
+            <div class="face-card red" data-rank="8&#10;♥"><div class="corner"><span class="rank">8</span><small>♥</small></div><div class="sym">♥</div></div>
+            <div class="face-card red" data-rank="J&#10;♦"><div class="corner"><span class="rank">J</span><small>♦</small></div><div class="sym">♦</div></div>
+          </div>
+          <div class="flipcard black newturn" data-rank="4&#10;♣">
+            <div class="sideb"></div>
+            <div class="sidef"><div class="corner"><span class="rank">4</span><small>♣</small></div><div class="sig">♣</div></div>
+          </div>
+          <div class="small-note">+1 community card</div>
+        </div>
+      <div class="logic"><span>existing flop</span><span class="accent">+ turn</span></div></div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-17" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q7">
+          <div class="caption">reveal the fourth community card</div>
+          
+          <div class="community">
+            <div class="face-card black" data-rank="A&#10;♠"><div class="corner"><span class="rank">A</span><small>♠</small></div><div class="sym">♠</div></div>
+            <div class="face-card red" data-rank="8&#10;♥"><div class="corner"><span class="rank">8</span><small>♥</small></div><div class="sym">♥</div></div>
+            <div class="face-card red" data-rank="J&#10;♦"><div class="corner"><span class="rank">J</span><small>♦</small></div><div class="sym">♦</div></div>
+          </div>
+          <div class="flipcard black newturn" data-rank="4&#10;♣">
+            <div class="sideb"></div>
+            <div class="sidef"><div class="corner"><span class="rank">4</span><small>♣</small></div><div class="sig">♣</div></div>
+          </div>
+          <div class="small-note">+1 community card</div>
+        </div>
+      <div class="logic"><span>existing flop</span><span class="accent">+ turn</span></div></div>
+      
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">이미 열린 플랍 3장 옆에, 네 번째 커뮤니티 카드가 뒤집혀 합류한다. 플랍 이후의 ‘증가’가 핵심이다.</div></div>
+      <div class="nextrow"><label for="d8">Next →</label></div>
+    </section>
+
+    <section class="panel q8 deal">
+      <div class="head">
+        <div class="eyebrow"><span class="dot"></span>08 · Dealer Motion</div>
+        <h1>River <span class="kr">리버</span></h1>
+        <p class="desc">마지막 다섯 번째 커뮤니티 카드가 공개된다.</p>
+      </div>
+      <input class="replay-state" type="checkbox" id="replay-18" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-18" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q8">
+          <div class="caption">reveal the final community card</div>
+          
+          <div class="community">
+            <div class="face-card black" data-rank="A&#10;♠"><div class="corner"><span class="rank">A</span><small>♠</small></div><div class="sym">♠</div></div>
+            <div class="face-card red" data-rank="8&#10;♥"><div class="corner"><span class="rank">8</span><small>♥</small></div><div class="sym">♥</div></div>
+            <div class="face-card red" data-rank="J&#10;♦"><div class="corner"><span class="rank">J</span><small>♦</small></div><div class="sym">♦</div></div>
+            <div class="face-card black" data-rank="4&#10;♣"><div class="corner"><span class="rank">4</span><small>♣</small></div><div class="sym">♣</div></div>
+          </div>
+          <div class="flipcard red newriver" data-rank="Q&#10;♥">
+            <div class="sideb"></div>
+            <div class="sidef"><div class="corner"><span class="rank">Q</span><small>♥</small></div><div class="sig">♥</div></div>
+          </div>
+          <div class="small-note">final board card</div>
+        </div>
+      <div class="logic"><span>board of 4</span><span class="accent">+ river</span><span>complete board</span></div></div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-18" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div>
+        <div class="dealer-stage q8">
+          <div class="caption">reveal the final community card</div>
+          
+          <div class="community">
+            <div class="face-card black" data-rank="A&#10;♠"><div class="corner"><span class="rank">A</span><small>♠</small></div><div class="sym">♠</div></div>
+            <div class="face-card red" data-rank="8&#10;♥"><div class="corner"><span class="rank">8</span><small>♥</small></div><div class="sym">♥</div></div>
+            <div class="face-card red" data-rank="J&#10;♦"><div class="corner"><span class="rank">J</span><small>♦</small></div><div class="sym">♦</div></div>
+            <div class="face-card black" data-rank="4&#10;♣"><div class="corner"><span class="rank">4</span><small>♣</small></div><div class="sym">♣</div></div>
+          </div>
+          <div class="flipcard red newriver" data-rank="Q&#10;♥">
+            <div class="sideb"></div>
+            <div class="sidef"><div class="corner"><span class="rank">Q</span><small>♥</small></div><div class="sig">♥</div></div>
+          </div>
+          <div class="small-note">final board card</div>
+        </div>
+      <div class="logic"><span>board of 4</span><span class="accent">+ river</span><span>complete board</span></div></div>
+      
+      <div class="info"><div class="label">Motion Logic</div><div class="rule">이미 공개된 4장의 보드에 마지막 1장이 뒤집혀 합류하면서 커뮤니티 카드 5장이 완성된다.</div></div>
+      <div class="nextrow"><label for="d9">Next →</label><label class="ghost" for="tab-hands">Hand Rankings</label></div>
+    </section>
+<section class="panel q9 deal"><div class="head"><div class="eyebrow"><span class="dot"></span>09 · Dealer Motion</div><h1>Wash <span class="kr">워시 셔플</span></h1><p class="desc">카드를 테이블에 엎어 넓게 섞는다.</p></div><input class="replay-state" type="checkbox" id="replay-19" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-19" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div><div class="dealer-stage extra wash"><div class="caption">Wash · card handling</div><div class="mcard back extra-card e0" style="--n:0;--dx:-45.0%;--dy:20%;--rot:-14deg"></div><div class="mcard back extra-card e1" style="--n:1;--dx:-27.0%;--dy:-20%;--rot:-7deg"></div><div class="mcard back extra-card e2" style="--n:2;--dx:-9.0%;--dy:20%;--rot:0deg"></div><div class="mcard back extra-card e3" style="--n:3;--dx:9.0%;--dy:-20%;--rot:7deg"></div><div class="mcard back extra-card e4" style="--n:4;--dx:27.0%;--dy:20%;--rot:14deg"></div><div class="mcard back extra-card e5" style="--n:5;--dx:45.0%;--dy:-20%;--rot:21deg"></div></div><div class="logic"><span>scatter</span><span>mix</span><span>wash</span></div></div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-19" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div><div class="dealer-stage extra wash"><div class="caption">Wash · card handling</div><div class="mcard back extra-card e0" style="--n:0;--dx:-45.0%;--dy:20%;--rot:-14deg"></div><div class="mcard back extra-card e1" style="--n:1;--dx:-27.0%;--dy:-20%;--rot:-7deg"></div><div class="mcard back extra-card e2" style="--n:2;--dx:-9.0%;--dy:20%;--rot:0deg"></div><div class="mcard back extra-card e3" style="--n:3;--dx:9.0%;--dy:-20%;--rot:7deg"></div><div class="mcard back extra-card e4" style="--n:4;--dx:27.0%;--dy:20%;--rot:14deg"></div><div class="mcard back extra-card e5" style="--n:5;--dx:45.0%;--dy:-20%;--rot:21deg"></div></div><div class="logic"><span>scatter</span><span>mix</span><span>wash</span></div></div><div class="info"><div class="label">Motion Logic</div><div class="rule">흩어진 카드들이 서로 다른 곡선 경로로 섞인다. 정돈은 다음 Square 동작에서 한다.</div><div class="note">카드 취급 동작을 단순화한 모션. 실제 셔플 순서와 절차는 운영 규정에 따라 다를 수 있다.</div></div><div class="nextrow"><label for="d10">Next →</label></div></section><section class="panel q10 deal"><div class="head"><div class="eyebrow"><span class="dot"></span>10 · Dealer Motion</div><h1>Strip <span class="kr">스트립 셔플</span></h1><p class="desc">덱에서 작은 묶음을 차례로 옮겨 순서를 바꾼다.</p></div><input class="replay-state" type="checkbox" id="replay-20" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-20" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div><div class="dealer-stage extra strip"><div class="caption">Strip · card handling</div><div class="strip-packet sp0"><div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div></div><div class="strip-packet sp1"><div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div></div><div class="strip-packet sp2"><div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div></div></div><div class="logic"><span>lift packet</span><span>transfer</span><span>reorder</span></div></div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-20" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div><div class="dealer-stage extra strip"><div class="caption">Strip · card handling</div><div class="strip-packet sp0"><div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div></div><div class="strip-packet sp1"><div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div></div><div class="strip-packet sp2"><div class="mcard back"></div><div class="mcard back"></div><div class="mcard back"></div></div></div><div class="logic"><span>lift packet</span><span>transfer</span><span>reorder</span></div></div><div class="info"><div class="label">Motion Logic</div><div class="rule">작은 카드 묶음이 한 덱에서 떨어져 나와 옆에 순서대로 쌓인다.</div><div class="note">카드 취급 동작을 단순화한 모션. 실제 셔플 순서와 절차는 운영 규정에 따라 다를 수 있다.</div></div><div class="nextrow"><label for="d11">Next →</label></div></section><section class="panel q11 deal"><div class="head"><div class="eyebrow"><span class="dot"></span>11 · Dealer Motion</div><h1>Spread <span class="kr">펼치기</span></h1><p class="desc">겹쳐진 카드를 옆으로 밀어 길게 펼친다.</p></div><input class="replay-state" type="checkbox" id="replay-21" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-21" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div><div class="dealer-stage extra spread"><div class="caption">Spread · card handling</div><div class="mcard back extra-card e0" style="--n:0;--dx:-45.0%;--dy:20%;--rot:-14deg"></div><div class="mcard back extra-card e1" style="--n:1;--dx:-27.0%;--dy:-20%;--rot:-7deg"></div><div class="mcard back extra-card e2" style="--n:2;--dx:-9.0%;--dy:20%;--rot:0deg"></div><div class="mcard back extra-card e3" style="--n:3;--dx:9.0%;--dy:-20%;--rot:7deg"></div><div class="mcard back extra-card e4" style="--n:4;--dx:27.0%;--dy:20%;--rot:14deg"></div><div class="mcard back extra-card e5" style="--n:5;--dx:45.0%;--dy:-20%;--rot:21deg"></div></div><div class="logic"><span>slide</span><span>spread</span><span>reveal edges</span></div></div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-21" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div><div class="dealer-stage extra spread"><div class="caption">Spread · card handling</div><div class="mcard back extra-card e0" style="--n:0;--dx:-45.0%;--dy:20%;--rot:-14deg"></div><div class="mcard back extra-card e1" style="--n:1;--dx:-27.0%;--dy:-20%;--rot:-7deg"></div><div class="mcard back extra-card e2" style="--n:2;--dx:-9.0%;--dy:20%;--rot:0deg"></div><div class="mcard back extra-card e3" style="--n:3;--dx:9.0%;--dy:-20%;--rot:7deg"></div><div class="mcard back extra-card e4" style="--n:4;--dx:27.0%;--dy:20%;--rot:14deg"></div><div class="mcard back extra-card e5" style="--n:5;--dx:45.0%;--dy:-20%;--rot:21deg"></div></div><div class="logic"><span>slide</span><span>spread</span><span>reveal edges</span></div></div><div class="info"><div class="label">Motion Logic</div><div class="rule">한 덩어리의 카드가 일정한 간격의 띠로 확장된다.</div><div class="note">카드 취급 동작을 단순화한 모션. 실제 셔플 순서와 절차는 운영 규정에 따라 다를 수 있다.</div></div><div class="nextrow"><label for="d12">Next →</label></div></section><section class="panel q12 deal"><div class="head"><div class="eyebrow"><span class="dot"></span>12 · Dealer Motion</div><h1>Muck <span class="kr">회수하기</span></h1><p class="desc">폴드되거나 사용이 끝난 카드를 뒷면 상태로 모은다.</p></div><input class="replay-state" type="checkbox" id="replay-22" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-22" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div><div class="dealer-stage extra muck"><div class="caption">Muck · card handling</div><div class="mcard back extra-card e0" style="--n:0;--dx:-45.0%;--dy:20%;--rot:-14deg"></div><div class="mcard back extra-card e1" style="--n:1;--dx:-27.0%;--dy:-20%;--rot:-7deg"></div><div class="mcard back extra-card e2" style="--n:2;--dx:-9.0%;--dy:20%;--rot:0deg"></div><div class="mcard back extra-card e3" style="--n:3;--dx:9.0%;--dy:-20%;--rot:7deg"></div><div class="mcard back extra-card e4" style="--n:4;--dx:27.0%;--dy:20%;--rot:14deg"></div><div class="mcard back extra-card e5" style="--n:5;--dx:45.0%;--dy:-20%;--rot:21deg"></div></div><div class="logic"><span>collect</span><span>face down</span><span>muck</span></div></div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-22" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div><div class="dealer-stage extra muck"><div class="caption">Muck · card handling</div><div class="mcard back extra-card e0" style="--n:0;--dx:-45.0%;--dy:20%;--rot:-14deg"></div><div class="mcard back extra-card e1" style="--n:1;--dx:-27.0%;--dy:-20%;--rot:-7deg"></div><div class="mcard back extra-card e2" style="--n:2;--dx:-9.0%;--dy:20%;--rot:0deg"></div><div class="mcard back extra-card e3" style="--n:3;--dx:9.0%;--dy:-20%;--rot:7deg"></div><div class="mcard back extra-card e4" style="--n:4;--dx:27.0%;--dy:20%;--rot:14deg"></div><div class="mcard back extra-card e5" style="--n:5;--dx:45.0%;--dy:-20%;--rot:21deg"></div></div><div class="logic"><span>collect</span><span>face down</span><span>muck</span></div></div><div class="info"><div class="label">Motion Logic</div><div class="rule">서로 다른 자리의 카드가 중앙의 폐기 더미로 모인다.</div><div class="note">카드 취급 동작을 단순화한 모션. 실제 셔플 순서와 절차는 운영 규정에 따라 다를 수 있다.</div></div><div class="nextrow"><label for="d13">Next →</label></div></section><section class="panel q13 deal"><div class="head"><div class="eyebrow"><span class="dot"></span>13 · Dealer Motion</div><h1>Stack <span class="kr">쌓기</span></h1><p class="desc">흩어진 카드를 한 장씩 포개어 더미를 만든다.</p></div><input class="replay-state" type="checkbox" id="replay-23" aria-label="모션 다시 재생"><div class="motion-stage replay-a"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-23" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div><div class="dealer-stage extra stack"><div class="caption">Stack · card handling</div><div class="mcard back extra-card e0" style="--n:0;--dx:-45.0%;--dy:20%;--rot:-14deg"></div><div class="mcard back extra-card e1" style="--n:1;--dx:-27.0%;--dy:-20%;--rot:-7deg"></div><div class="mcard back extra-card e2" style="--n:2;--dx:-9.0%;--dy:20%;--rot:0deg"></div><div class="mcard back extra-card e3" style="--n:3;--dx:9.0%;--dy:-20%;--rot:7deg"></div><div class="mcard back extra-card e4" style="--n:4;--dx:27.0%;--dy:20%;--rot:14deg"></div><div class="mcard back extra-card e5" style="--n:5;--dx:45.0%;--dy:-20%;--rot:21deg"></div></div><div class="logic"><span>gather</span><span>layer</span><span>stack</span></div></div><div class="motion-stage replay-b"><div class="stage-label"><span>LIVE STUDY</span><label class="replay-control" for="replay-23" title="모션 다시 재생" aria-label="모션 다시 재생"><span aria-hidden="true">↻</span></label></div><div class="dealer-stage extra stack"><div class="caption">Stack · card handling</div><div class="mcard back extra-card e0" style="--n:0;--dx:-45.0%;--dy:20%;--rot:-14deg"></div><div class="mcard back extra-card e1" style="--n:1;--dx:-27.0%;--dy:-20%;--rot:-7deg"></div><div class="mcard back extra-card e2" style="--n:2;--dx:-9.0%;--dy:20%;--rot:0deg"></div><div class="mcard back extra-card e3" style="--n:3;--dx:9.0%;--dy:-20%;--rot:7deg"></div><div class="mcard back extra-card e4" style="--n:4;--dx:27.0%;--dy:20%;--rot:14deg"></div><div class="mcard back extra-card e5" style="--n:5;--dx:45.0%;--dy:-20%;--rot:21deg"></div></div><div class="logic"><span>gather</span><span>layer</span><span>stack</span></div></div><div class="info"><div class="label">Motion Logic</div><div class="rule">각 카드가 순서대로 중앙에 합류하며 한 덱으로 쌓인다.</div><div class="note">카드 취급 동작을 단순화한 모션. 실제 셔플 순서와 절차는 운영 규정에 따라 다를 수 있다.</div></div><div class="nextrow"><label for="d1">Back to 01 ↺</label></div></section>
+  </main><footer class="endmark"><p class="footer-credit">Poker Anatomy — A study of playing cards, hand rankings &amp; dealer motions.</p><p class="footer-explainer">카드의 규칙과 움직임을 관찰하는 인터랙션 아카이브. 표준 텍사스 홀덤을 기준으로 구성했습니다.</p></footer>
+</div>
+</body>
+</html>
